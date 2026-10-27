@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Sample Papers | Classroom Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="secure-page">
+
+  <!-- Top Navigation -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="brand">
+        <span class="logo-mark">📖</span>
+        <span class="brand-name">Tuition Portal</span>
+      </div>
+      <nav class="nav-links">
+        <a href="home.html" class="nav-link">Home</a>
+        <a href="sample-papers.html" class="nav-link active">Sample Papers</a>
+        <a href="games.html" class="nav-link">Practice Zone</a>
+        <a href="contact.html" class="nav-link">Batches & Contact</a>
+      </nav>
+      <div class="user-control">
+        <span class="student-pill" id="studentDisplay">Student</span>
+        <button id="logoutBtn" class="btn btn-outline-sm">Log Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-container">
+    
+    <!-- Header with Selector -->
+    <div class="viewer-header-row">
+      <div>
+        <h2>Weekly Evaluation Papers</h2>
+        <p class="subtext">Read-only academic assessment copy. Screen capture & printing are restricted.</p>
+      </div>
+
+      <!-- Weekly Paper Switcher -->
+      <div class="paper-selector-wrap">
+        <label for="paperSelect">Select Paper:</label>
+        <select id="paperSelect" class="form-select">
+          <option value="paper_wk4">Week 4: Class 10 Social Science - Full Mock (80 Marks)</option>
+          <option value="paper_wk3">Week 3: History & Civics - Chapter Test</option>
+          <option value="paper_wk2">Week 2: Geography - Map & Analytical Series</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Security Warning Strip -->
+    <div class="security-banner">
+      <span>🛡️ Watermarked Session: Viewing as <strong id="securityStudentTag">Student</strong>. Unauthorized reproduction or redistribution is logged.</span>
+    </div>
+
+    <!-- Secure Desk / Canvas Viewer -->
+    <section class="viewer-workspace">
+      
+      <!-- Controls Toolbar -->
+      <div class="viewer-toolbar">
+        <div class="toolbar-left">
+          <button id="prevPageBtn" class="btn btn-sm">&larr; Previous</button>
+          <span class="page-counter">Page <span id="currentPageNum">1</span> of <span id="totalPagesNum">1</span></span>
+          <button id="nextPageBtn" class="btn btn-sm">Next &rarr;</button>
+        </div>
+
+        <div class="toolbar-right">
+          <button id="zoomOutBtn" class="btn btn-icon" title="Zoom Out">-</button>
+          <span id="zoomLevel">100%</span>
+          <button id="zoomInBtn" class="btn btn-icon" title="Zoom In">+</button>
+        </div>
+      </div>
+
+      <!-- Screen Container (Canvas + Watermark) -->
+      <div class="canvas-viewport" id="canvasViewport">
+        <!-- Anti-screenshot blur shield overlay -->
+        <div id="securityBlurScreen" class="security-blur-overlay" style="display: none;">
+          <div class="security-blur-msg">
+            <p>⚠️ Viewing paused. Window focus lost or screenshot tool detected.</p>
+            <p>Click back inside this page to continue reading.</p>
+          </div>
+        </div>
+
+        <!-- Dynamic Watermark Canvas Layer -->
+        <canvas id="watermarkCanvas" class="watermark-layer"></canvas>
+
+        <!-- Document Render Canvas -->
+        <canvas id="documentCanvas" class="document-layer"></canvas>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Security & Canvas Scripts -->
+  <script src="js/auth.js"></script>
+  <script src="js/security.js"></script>
+  <script src="js/paper-viewer.js"></script>
+</body>
+</html>
