@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batches & Contact | Classroom Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="brand">
+        <span class="logo-mark">📖</span>
+        <span class="brand-name">Tuition Portal</span>
+      </div>
+      <nav class="nav-links">
+        <a href="home.html" class="nav-link">Home</a>
+        <a href="sample-papers.html" class="nav-link">Sample Papers</a>
+        <a href="games.html" class="nav-link">Practice Zone</a>
+        <a href="contact.html" class="nav-link active">Batches & Contact</a>
+      </nav>
+      <div class="user-control">
+        <span class="student-pill" id="studentDisplay">Student</span>
+        <button id="logoutBtn" class="btn btn-outline-sm">Log Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-container">
+    
+    <div class="page-header">
+      <h2>Classroom Information &amp; Support</h2>
+      <p>Direct communication desk for parents and students regarding batches and study schedules.</p>
+    </div>
+
+    <div class="contact-grid">
+      
+      <!-- Classroom & Teacher Details -->
+      <section class="card contact-card">
+        <h3>Classroom Desk</h3>
+        <p class="location-text">
+          📍 <strong>Classroom Location:</strong> Sethpukur, Barasat, North 24 Parganas, West Bengal
+        </p>
+
+        <div class="contact-channels">
+          <div class="channel-item">
+            <span class="channel-label">Academic Head:</span>
+            <span class="channel-value">Swati Bhattacharyya</span>
+          </div>
+          <div class="channel-item">
+            <span class="channel-label">Subjects Covered:</span>
+            <span class="channel-value">Social Science (History, Geography, Pol. Science, Economics) &amp; Bengali</span>
+          </div>
+        </div>
+
+        <!-- Direct WhatsApp Communication -->
+        <div class="whatsapp-box">
+          <p>Need doubt clarification or notice regarding batch timings?</p>
+          <a 
+            href="https://wa.me/918910337293?text=Hello%20Maam,%20I%20am%20a%20student%20inquiring%20about..." 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="btn btn-whatsapp"
+          >
+            💬 Message on WhatsApp
+          </a>
+        </div>
+      </section>
+
+      <!-- Classroom Guidelines & Protocol -->
+      <section class="card guidelines-card">
+        <h3>Classroom Protocol &amp; Rules</h3>
+        <ol class="guideline-list">
+          <li><strong>Punctuality:</strong> Arrive 5 minutes before scheduled batch timing. Entry during ongoing test dictation is restricted.</li>
+          <li><strong>Test Absence:</strong> Missing a scheduled assessment requires prior intimation from guardians.</li>
+          <li><strong>Portal Confidentiality:</strong> Do not share your login PIN or portal sample questions outside the batch.</li>
+        </ol>
+      </section>
+
+    </div>
+
+  </main>
+
+  <footer class="portal-footer">
+    <p>SMT Tuition Portal &bull; Strictly for enrolled batch students</p>
+  </footer>
+
+  <script src="js/auth.js"></script>
+</body>
+</html>
