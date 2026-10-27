@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portal | Sign In</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-body">
+
+  <main class="login-wrapper">
+    <div class="login-box">
+      <!-- Portal Brand -->
+      <header class="login-header">
+        <div class="badge-icon">📚</div>
+        <h1>Classroom Study Portal</h1>
+        <p>Private Tuition & Continuous Assessment Desk</p>
+      </header>
+
+      <!-- Sign In Form -->
+      <form id="loginForm" class="login-form" autocomplete="off">
+        <div class="form-group">
+          <label for="studentName">Student Name / Roll ID</label>
+          <input 
+            type="text" 
+            id="studentName" 
+            name="studentName" 
+            placeholder="e.g. Surottam / Adrita" 
+            required 
+            spellcheck="false"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="studentPass">Access Key (PIN)</label>
+          <input 
+            type="password" 
+            id="studentPass" 
+            name="studentPass" 
+            placeholder="Enter your 4 or 6-digit key" 
+            required 
+            maxlength="20"
+          >
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" id="loginBtn" class="btn btn-primary">
+            Enter Classroom &rarr;
+          </button>
+        </div>
+
+        <div id="authError" class="auth-error" style="display: none;" role="alert"></div>
+      </form>
+
+      <footer class="login-footer">
+        <p>Forgot your access PIN? Ask the instructor directly during batch hours.</p>
+      </footer>
+    </div>
+  </main>
+
+  <!-- Login Logic -->
+  <script src="js/auth.js"></script>
+</body>
+</html>
