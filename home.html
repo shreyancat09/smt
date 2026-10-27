@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Classroom Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="brand">
+        <span class="logo-mark">📖</span>
+        <span class="brand-name">Tuition Portal</span>
+      </div>
+
+      <nav class="nav-links">
+        <a href="home.html" class="nav-link active">Home</a>
+        <a href="sample-papers.html" class="nav-link">Sample Papers</a>
+        <a href="games.html" class="nav-link">Practice Zone</a>
+        <a href="contact.html" class="nav-link">Batches & Contact</a>
+      </nav>
+
+      <div class="user-control">
+        <span class="student-pill" id="studentDisplay">Student</span>
+        <button id="logoutBtn" class="btn btn-outline-sm">Log Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Dashboard Main Body -->
+  <main class="page-container">
+    
+    <!-- Welcome Banner -->
+    <section class="welcome-card">
+      <div>
+        <h2 id="welcomeGreeting">Welcome back!</h2>
+        <p>Review this week's active evaluation papers and update your practice copies.</p>
+      </div>
+      <div class="date-badge" id="currentDateBadge">Class Session 2026–27</div>
+    </section>
+
+    <!-- Quick Navigation Grid -->
+    <section class="portal-grid">
+      
+      <!-- Primary Action: Sample Paper -->
+      <article class="card highlight-card">
+        <div class="card-tag">Latest Test</div>
+        <h3>Weekly Sample Paper</h3>
+        <p>Current weekly test paper is live. Review questions on-screen prior to test submission.</p>
+        <div class="meta-info">
+          <span>📅 Updated: This Week</span>
+          <span>🔒 Protected Canvas</span>
+        </div>
+        <a href="sample-papers.html" class="btn btn-primary">Open Paper Viewer &rarr;</a>
+      </article>
+
+      <!-- Practice / Quiz Zone -->
+      <article class="card">
+        <div class="card-tag secondary">Revision</div>
+        <h3>Interactive Practice Zone</h3>
+        <p>Rapid recall quizzes, timeline sequencing, and key terminology drill cards.</p>
+        <div class="meta-info">
+          <span>⏱️ 5-minute drills</span>
+          <span>🎯 Board exam focus</span>
+        </div>
+        <a href="games.html" class="btn btn-secondary">Start Drills &rarr;</a>
+      </article>
+
+      <!-- Tuition Notice Board -->
+      <article class="card notice-card">
+        <div class="card-tag">Notice Board</div>
+        <h3>Class Announcements</h3>
+        <ul class="notice-list">
+          <li>
+            <strong>OMR Answer Sheets:</strong> Bring blank 50-mark OMR sheets for this Sunday's evaluation.
+          </li>
+          <li>
+            <strong>Social Science Copies:</strong> Class 10 assignment copies will be checked on Thursday.
+          </li>
+          <li>
+            <strong>Doubt Clearing:</strong> 30 minutes allocated after each weekend evening batch.
+          </li>
+        </ul>
+      </article>
+
+    </section>
+
+    <!-- Batch Overview Table -->
+    <section class="section-block">
+      <h3>Weekly Class Timetable</h3>
+      <div class="table-responsive">
+        <table class="academic-table">
+          <thead>
+            <tr>
+              <th>Batch</th>
+              <th>Days</th>
+              <th>Time</th>
+              <th>Focus Area</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Class 10 (Batch A)</td>
+              <td>Tuesday &amp; Friday</td>
+              <td>5:00 PM – 6:45 PM</td>
+              <td>History, Geography, Economics</td>
+            </tr>
+            <tr>
+              <td>Class 10 (Batch B)</td>
+              <td>Wednesday &amp; Saturday</td>
+              <td>5:30 PM – 7:15 PM</td>
+              <td>Civics &amp; Descriptive Writing</td>
+            </tr>
+            <tr>
+              <td>Class 9 (Junior Batch)</td>
+              <td>Sunday</td>
+              <td>9:00 AM – 11:30 AM</td>
+              <td>Social Science &amp; Concept Revision</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="portal-footer">
+    <p>Private Tuition Portal &bull; Strictly for enrolled batch students</p>
+  </footer>
+
+  <script src="js/auth.js"></script>
+</body>
+</html>
