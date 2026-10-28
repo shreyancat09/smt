@@ -13,7 +13,7 @@
     <div class="welcome-card">
       <div>
         <h2>Faculty Desk — Student Fees, Uploads &amp; Logs</h2>
-        <p>Upload test papers directly from phone, manage fee locks, and view logs.</p>
+        <p>Upload test papers, manage live synced student fees, and review login logs.</p>
       </div>
       <a href="index.html" class="btn btn-outline-sm">&larr; Return to Portal</a>
     </div>
@@ -28,7 +28,7 @@
       <form id="directUploadForm">
         <div class="form-group">
           <label for="uploadPaperTitle">Paper Name</label>
-          <input type="text" id="uploadPaperTitle" placeholder="e.g. Sample Paper 1" required>
+          <input type="text" id="uploadPaperTitle" placeholder="e.g. Sample Paper 2" required>
         </div>
 
         <div class="form-group">
@@ -51,20 +51,14 @@
       </form>
     </div>
 
-    <!-- Student Notes & Doubts -->
-    <div class="card" style="margin-bottom: 1.5rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-        <h3>📬 Student Notes &amp; Doubts Received</h3>
-        <button id="clearFeedbackBtn" class="btn btn-outline-sm">Clear All Notes</button>
-      </div>
-      <div id="adminFeedbackList" class="feedback-admin-feed"></div>
-    </div>
-
-    <!-- Student Fee Control Table -->
+    <!-- Student Fee Control Table with Live GitHub Sync -->
     <div class="card" style="margin-bottom: 1.5rem;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3>Student Fees Status</h3>
-        <button id="saveRosterBtn" class="btn btn-primary btn-sm">💾 Save Fee Status</button>
+        <div>
+          <h3>Student Fees Status (Synced Globally)</h3>
+          <small style="color: var(--text-muted);">Saving commits changes directly to GitHub so all student phones lock instantly.</small>
+        </div>
+        <button id="saveRosterBtn" class="btn btn-primary btn-sm">💾 Commit Fee Updates</button>
       </div>
 
       <div class="table-responsive">
@@ -79,14 +73,12 @@
           <tbody id="studentRosterBody"></tbody>
         </table>
       </div>
-      <p id="saveNotice" style="display: none; color: #16a34a; font-weight: 600; margin-top: 0.75rem;">
-        Changes saved! Unpaid students are locked out.
-      </p>
+      <p id="saveNotice" style="display: none; font-weight: 600; margin-top: 0.75rem;"></p>
     </div>
 
     <!-- Live Access Logs -->
     <div class="card">
-      <h3>Recent Student Logins</h3>
+      <h3>Recent Student Logins (This Browser)</h3>
       <div class="table-responsive">
         <table class="academic-table">
           <thead>
@@ -108,11 +100,12 @@
 
   <script>
     // === REPOSITORY CONFIGURATION ===
+    // Enter your GitHub username and repository name here:
     const GITHUB_OWNER = "YOUR_GITHUB_USERNAME";
     const GITHUB_REPO = "YOUR_REPO_NAME";
     // ================================
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       // 1. Token Setup
       const tokenInp = document.getElementById("ghTokenInput");
       const saveTokenBtn = document.getElementById("saveTokenBtn");
@@ -127,12 +120,122 @@
         const val = tokenInp.value.trim();
         if (val) {
           localStorage.setItem("tuition_gh_token", val);
-          alert("Key saved to this browser! You can now upload papers directly.");
+          alert("Key saved to phone! You can now upload and sync fees directly.");
           tokenArea.style.display = "none";
         }
       });
 
-      // 2. Direct PDF Upload Handler
+      // 2. Load Master Roster from GitHub repo directly
+      let liveRoster = {};
+      let rosterSha = null;
+      const tbody = document.getElementById("studentRosterBody");
+
+      try {
+        const rosterRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/papers/roster.json?t=${Date.now()}`);
+        if (rosterRes.ok) {
+          const rosterData = await rosterRes.json();
+          rosterSha = rosterData.sha;
+          liveRoster = JSON.parse(decodeURIComponent(escape(atob(rosterData.content))));
+        } else {
+          // Fallback to local fetch
+          const localRes = await fetch(`./papers/roster.json?t=${Date.now()}`);
+          liveRoster = await localRes.json();
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="3" style="color: var(--accent-rose);">Failed to load roster from GitHub.</td></tr>`;
+      }
+
+      // Render Students
+      for (const [key, student] of Object.entries(liveRoster)) {
+        if (key === "admin") continue;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${student.name}</strong></td>
+          <td>
+            <select class="status-sel" data-id="${key}" style="padding: 0.35rem; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-main);">
+              <option value="paid" ${student.feesPaid ? "selected" : ""}>✅ Paid (Unlocked)</option>
+              <option value="unpaid" ${!student.feesPaid ? "selected" : ""}>❌ Unpaid (Locked)</option>
+            </select>
+          </td>
+          <td>
+            <input type="text" class="months-inp" data-id="${key}" value="${student.pendingMonths || ''}" 
+                   placeholder="e.g. October" style="padding: 0.35rem 0.6rem; border: 1px solid var(--border-color); border-radius: 4px; width: 100%; background: var(--bg-surface); color: var(--text-main);">
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      // 3. Save Fee Updates Directly to GitHub papers/roster.json
+      const saveBtn = document.getElementById("saveRosterBtn");
+      const saveNotice = document.getElementById("saveNotice");
+
+      saveBtn.addEventListener("click", async () => {
+        savedToken = localStorage.getItem("tuition_gh_token");
+        if (!savedToken) {
+          tokenArea.style.display = "block";
+          alert("Please enter the GitHub Access Key once to authorize fee updates.");
+          return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Committing to GitHub...";
+        saveNotice.style.display = "block";
+        saveNotice.style.color = "var(--primary)";
+        saveNotice.textContent = "Updating global roster on GitHub...";
+
+        // Extract latest values from table
+        document.querySelectorAll(".status-sel").forEach(s => {
+          const id = s.getAttribute("data-id");
+          liveRoster[id].feesPaid = (s.value === "paid");
+        });
+        document.querySelectorAll(".months-inp").forEach(i => {
+          const id = i.getAttribute("data-id");
+          liveRoster[id].pendingMonths = i.value.trim();
+        });
+
+        try {
+          // Fetch freshest SHA if missing
+          if (!rosterSha) {
+            const checkRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/papers/roster.json`, {
+              headers: { "Authorization": `Bearer ${savedToken}` }
+            });
+            if (checkRes.ok) {
+              const data = await checkRes.json();
+              rosterSha = data.sha;
+            }
+          }
+
+          const updatedRosterBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(liveRoster, null, 2))));
+          const commitRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/papers/roster.json`, {
+            method: "PUT",
+            headers: {
+              "Authorization": `Bearer ${savedToken}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              message: "Update student fee status [Faculty]",
+              content: updatedRosterBase64,
+              sha: rosterSha
+            })
+          });
+
+          if (!commitRes.ok) throw new Error("Failed to commit fee changes to GitHub.");
+
+          const commitData = await commitRes.json();
+          rosterSha = commitData.content.sha;
+
+          saveNotice.style.color = "var(--accent-emerald)";
+          saveNotice.textContent = "Fee updates committed globally! Live on all student devices.";
+        } catch (err) {
+          saveNotice.style.color = "var(--accent-rose)";
+          saveNotice.textContent = err.message;
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.textContent = "💾 Commit Fee Updates";
+        }
+      });
+
+      // 4. Direct PDF Upload Handler
       const uploadForm = document.getElementById("directUploadForm");
       const uploadBtn = document.getElementById("submitUploadBtn");
       const statusText = document.getElementById("uploadStatusText");
@@ -230,79 +333,11 @@
         }
       });
 
-      // 3. Populate Students Roster Table
-      const roster = JSON.parse(localStorage.getItem("tuition_roster_v4") || "{}");
-      const tbody = document.getElementById("studentRosterBody");
-      const saveBtn = document.getElementById("saveRosterBtn");
-      const saveNotice = document.getElementById("saveNotice");
-
-      for (const [key, student] of Object.entries(roster)) {
-        if (key === "admin") continue;
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td><strong>${student.name}</strong></td>
-          <td>
-            <select class="status-sel" data-id="${key}" style="padding: 0.35rem; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-main);">
-              <option value="paid" ${student.feesPaid ? "selected" : ""}>✅ Paid (Unlocked)</option>
-              <option value="unpaid" ${!student.feesPaid ? "selected" : ""}>❌ Unpaid (Locked)</option>
-            </select>
-          </td>
-          <td>
-            <input type="text" class="months-inp" data-id="${key}" value="${student.pendingMonths || ''}" 
-                   placeholder="e.g. October" style="padding: 0.35rem 0.6rem; border: 1px solid var(--border-color); border-radius: 4px; width: 100%; background: var(--bg-surface); color: var(--text-main);">
-          </td>
-        `;
-        tbody.appendChild(tr);
-      }
-
-      saveBtn.addEventListener("click", () => {
-        document.querySelectorAll(".status-sel").forEach(s => {
-          const id = s.getAttribute("data-id");
-          roster[id].feesPaid = (s.value === "paid");
-        });
-        document.querySelectorAll(".months-inp").forEach(i => {
-          const id = i.getAttribute("data-id");
-          roster[id].pendingMonths = i.value.trim();
-        });
-
-        localStorage.setItem("tuition_roster_v4", JSON.stringify(roster));
-        saveNotice.style.display = "block";
-        setTimeout(() => saveNotice.style.display = "none", 3000);
-      });
-
-      // 4. Render Notes & Doubts
-      const feedbackList = document.getElementById("adminFeedbackList");
-      const notes = JSON.parse(localStorage.getItem("tuition_feedbacks") || "[]");
-      if (notes.length === 0) {
-        feedbackList.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem; font-style: italic;">No student notes submitted yet.</p>`;
-      } else {
-        feedbackList.innerHTML = "";
-        notes.forEach(item => {
-          const div = document.createElement("div");
-          div.className = "feedback-admin-item";
-          div.innerHTML = `
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
-              <strong>${item.name}</strong>
-              <small style="color: var(--text-muted);">${item.time}</small>
-            </div>
-            <p style="margin: 0; font-size: 0.9rem; color: var(--text-main);">${item.text}</p>
-          `;
-          feedbackList.appendChild(div);
-        });
-      }
-
-      document.getElementById("clearFeedbackBtn").addEventListener("click", () => {
-        if (confirm("Clear all received student notes?")) {
-          localStorage.removeItem("tuition_feedbacks");
-          location.reload();
-        }
-      });
-
-      // 5. Render Logins
+      // 5. Render Local Logins
       const logBody = document.getElementById("accessLogBody");
-      const logs = JSON.parse(localStorage.getItem("tuition_access_logs_v4") || "[]");
+      const logs = JSON.parse(localStorage.getItem("tuition_access_logs_v5") || "[]");
       if (logs.length === 0) {
-        logBody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--text-muted);">No logins recorded today.</td></tr>`;
+        logBody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--text-muted);">No logins recorded on this browser today.</td></tr>`;
       } else {
         logs.forEach(l => {
           const row = document.createElement("tr");
