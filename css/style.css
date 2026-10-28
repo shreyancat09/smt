@@ -1,6 +1,6 @@
 /* ==========================================================================
    TUITION STUDY PORTAL - MASTER STYLESHEET
-   Includes: Theme system, Paw trail, Discussions, ShreyanCat widget
+   Includes: Theme system, Paw trail, Discussions, ShreyanCat widget, Touch Fix
    ========================================================================== */
 
 :root {
@@ -328,13 +328,7 @@ textarea:focus,
 }
 
 .post-doubt-card { border: 1px solid var(--border-color); }
-
-.discussion-feed {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
+.discussion-feed { display: flex; flex-direction: column; gap: 1rem; }
 .discussion-item-card { border: 1px solid var(--border-color); }
 
 .discussion-meta {
@@ -349,11 +343,7 @@ textarea:focus,
   color: var(--primary);
 }
 
-.time-badge {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-
+.time-badge { font-size: 0.78rem; color: var(--text-muted); }
 .discussion-title { font-size: 1.15rem; margin-bottom: 0.4rem; }
 .discussion-text { font-size: 0.92rem; color: var(--text-main); margin-bottom: 1rem; }
 
@@ -381,20 +371,6 @@ textarea:focus,
   color: var(--text-main);
 }
 
-/* Admin Feedback List */
-.feedback-admin-feed {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.feedback-admin-item {
-  background: var(--bg-page);
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-sm);
-  border-left: 3px solid var(--accent-emerald);
-}
-
 /* Buttons */
 .btn {
   display: inline-flex;
@@ -407,6 +383,7 @@ textarea:focus,
   border: 1px solid transparent;
   cursor: pointer;
   font-family: inherit;
+  text-decoration: none;
 }
 
 .btn-primary { background: var(--primary); color: #fff; }
@@ -415,7 +392,8 @@ textarea:focus,
 .btn-outline-sm { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.35rem 0.75rem; font-size: 0.82rem; }
 .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-color); color: var(--text-main); }
 .btn-icon { width: 32px; height: 32px; background: var(--bg-surface-elevated); border: 1px solid var(--border-color); color: var(--text-main); font-weight: 700; cursor: pointer; }
-.btn-whatsapp { background: #16a34a; color: #fff; width: 100%; text-decoration: none; }
+.btn-whatsapp { background: #16a34a; color: #fff; }
+.btn-whatsapp:hover { background: #15803d; }
 
 /* Fee Lock Modal */
 .fee-lock-card {
@@ -495,7 +473,7 @@ textarea:focus,
   color: #fff;
 }
 
-/* Breakout Arcade */
+/* Breakout Arcade (Includes Mobile Gesture Lock) */
 .game-stage {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
@@ -525,7 +503,13 @@ textarea:focus,
   background: #0f172a;
 }
 
-#breakoutCanvas { display: block; width: 100%; height: auto; }
+#breakoutCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: none; /* Stops mobile browsers from pulling-to-refresh or scrolling during play */
+}
+
 .arcade-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.92); display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 1.5rem; }
 
 /* Tables */
@@ -534,10 +518,7 @@ textarea:focus,
 .academic-table th, .academic-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); }
 .academic-table th { background: var(--bg-page); color: var(--text-muted); }
 
-/* ==========================================================================
-   SHREYAN-CAT FLOATING ASSISTANT WIDGET
-   ========================================================================== */
-
+/* ShreyanCat Assistant Widget */
 .cat-floating-bubble {
   position: fixed;
   bottom: 24px;
@@ -556,10 +537,7 @@ textarea:focus,
   transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.cat-floating-bubble:hover {
-  transform: scale(1.15) rotate(-6deg);
-}
-
+.cat-floating-bubble:hover { transform: scale(1.15) rotate(-6deg); }
 .cat-face-icon { font-size: 32px; }
 
 .cat-active-beacon {
@@ -604,31 +582,10 @@ textarea:focus,
   align-items: center;
 }
 
-.cat-brand-wrap {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.cat-brand-wrap strong {
-  display: block;
-  font-size: 0.95rem;
-  color: #38bdf8;
-}
-
-.cat-brand-wrap small {
-  display: block;
-  font-size: 0.72rem;
-  color: #94a3b8;
-}
-
-.cat-close-btn {
-  background: transparent;
-  border: none;
-  color: #94a3b8;
-  font-size: 1.4rem;
-  cursor: pointer;
-}
+.cat-brand-wrap { display: flex; align-items: center; gap: 0.5rem; }
+.cat-brand-wrap strong { display: block; font-size: 0.95rem; color: #38bdf8; }
+.cat-brand-wrap small { display: block; font-size: 0.72rem; color: #94a3b8; }
+.cat-close-btn { background: transparent; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer; }
 
 .cat-chat-body {
   flex: 1;
@@ -683,10 +640,7 @@ textarea:focus,
   cursor: pointer;
 }
 
-.chip-item:hover {
-  background: var(--primary-subtle);
-  color: var(--primary);
-}
+.chip-item:hover { background: var(--primary-subtle); color: var(--primary); }
 
 .cat-input-bar {
   display: flex;
@@ -730,7 +684,7 @@ textarea:focus,
 
 .portal-footer strong { color: var(--primary); }
 
-/* Anti-Print */
+/* Anti-Print Protection */
 @media print { html, body { display: none !important; } }
 
 @media (max-width: 768px) {
