@@ -63,7 +63,6 @@
           <button class="nav-tab-btn active" data-tab="tab-home">Home</button>
           <button class="nav-tab-btn" data-tab="tab-paper">Sample Paper</button>
           <button class="nav-tab-btn" data-tab="tab-discussion">Discussion Lounge</button>
-          <button class="nav-tab-btn" data-tab="tab-arcade">Arcade Zone</button>
           <button class="nav-tab-btn" data-tab="tab-contact">Contact</button>
           <!-- Faculty Desk Tab (Visible ONLY to Admin) -->
           <button class="nav-tab-btn" id="adminNavTab" data-tab="tab-admin" style="display: none; background: rgba(37, 99, 235, 0.15); color: var(--primary); font-weight: 700;">⚙️ Faculty Desk</button>
@@ -119,13 +118,6 @@
               <h3>Peer Discussion Lounge</h3>
               <p>Post doubt queries, compare answers, and discuss study topics with batchmates.</p>
               <button class="btn btn-secondary" onclick="switchTab('tab-discussion')">Join Discussion &rarr;</button>
-            </article>
-
-            <article class="card">
-              <div class="card-tag tertiary">Refreshment</div>
-              <h3>Breakout Arcade</h3>
-              <p>5-minute reflex reset game. Break bricks, collect powers, and set records.</p>
-              <button class="btn btn-secondary" onclick="switchTab('tab-arcade')">Play Arcade &rarr;</button>
             </article>
           </section>
 
@@ -228,44 +220,7 @@
         </div>
       </section>
 
-      <!-- ================= TAB 4: ARCADE ================= -->
-      <section id="tab-arcade" class="tab-content">
-        <div class="page-header">
-          <h2>Arcade Refreshment Zone</h2>
-          <p>Clear the bricks, collect falling power-ups, and beat the tuition record.</p>
-        </div>
-
-        <div class="game-stage">
-          <div class="stage-header">
-            <div class="blitz-stats">
-              <div class="stat-pill"><span class="stat-label">SCORE</span><span class="stat-val" id="arcadeScore">0</span></div>
-              <div class="stat-pill"><span class="stat-label">LIVES</span><span class="stat-val" id="arcadeLives">❤️❤️❤️</span></div>
-              <div class="stat-pill highlight"><span class="stat-label">HIGH SCORE</span><span class="stat-val" id="arcadeHighScore">0</span></div>
-            </div>
-            <div class="header-actions">
-              <button id="pauseArcadeBtn" class="btn btn-outline-sm">Pause</button>
-              <button id="resetArcadeBtn" class="btn btn-outline-sm">Restart</button>
-            </div>
-          </div>
-
-          <div class="arcade-viewport-wrapper">
-            <canvas id="breakoutCanvas" width="720" height="480"></canvas>
-            <div id="arcadeOverlay" class="arcade-overlay">
-              <div class="arcade-modal">
-                <h3 id="overlayTitle">⚡ BREAKOUT ARCADE</h3>
-                <p id="overlaySub">Bounce the ball, break all bricks, and catch wide-paddles and multi-balls!</p>
-                <div class="controls-guide">
-                  <span>🖥️ <strong>Controls:</strong> Mouse or Left / Right Arrow Keys</span><br>
-                  <span>📱 <strong>Mobile:</strong> Drag finger across the paddle</span>
-                </div>
-                <button id="overlayActionBtn" class="btn btn-primary">Start Game &rarr;</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================= TAB 5: CONTACT ================= -->
+      <!-- ================= TAB 4: CONTACT ================= -->
       <section id="tab-contact" class="tab-content">
         <div class="page-header">
           <h2>Classroom Desk &amp; Guidelines</h2>
@@ -281,10 +236,6 @@
                 <span class="channel-label">Academic Head:</span>
                 <span class="channel-value">Swati Bhattacharyya</span>
               </div>
-              <div class="channel-item">
-                <span class="channel-label">Evaluation Schedule:</span>
-                <span class="channel-value">Every alternate Sunday</span>
-              </div>
             </div>
             <div class="whatsapp-box">
               <p>Need guidance or intimation regarding batch timings?</p>
@@ -297,15 +248,13 @@
           <div class="card guidelines-card">
             <h3>Batch Protocols</h3>
             <ol class="guideline-list">
-              <li><strong>Punctuality:</strong> Arrive 5 minutes before scheduled batch timing.</li>
-              <li><strong>Assessments:</strong> Missing a scheduled evaluation requires prior guardian notice.</li>
               <li><strong>Confidentiality:</strong> Do not distribute portal evaluation materials.</li>
             </ol>
           </div>
         </div>
       </section>
 
-      <!-- ================= TAB 6: FACULTY DESK (ADMIN ONLY) ================= -->
+      <!-- ================= TAB 5: FACULTY DESK (ADMIN ONLY) ================= -->
       <section id="tab-admin" class="tab-content">
         <div class="welcome-card" style="border-left: 4px solid var(--primary);">
           <div>
@@ -315,7 +264,6 @@
           <div class="date-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">Instructor Access</div>
         </div>
 
-        <!-- Quick Management Guides for GitHub Mobile -->
         <div class="portal-grid" style="margin-bottom: 2rem;">
           <article class="card">
             <div class="card-tag">Action Guide</div>
@@ -330,11 +278,10 @@
           </article>
         </div>
 
-        <!-- Student Roster Table -->
         <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
             <div>
-              <h3>Registered Student Directory (35 Students)</h3>
+              <h3>Registered Student Directory</h3>
               <small style="color: var(--text-muted);">Live directory pulled from papers/roster.json</small>
             </div>
             <button class="btn btn-outline-sm" onclick="renderAdminRoster()">🔄 Refresh Roster</button>
