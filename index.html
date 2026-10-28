@@ -9,7 +9,7 @@
 </head>
 <body>
 
-  <!-- Background Cat Paw Particle Canvas (Desktop Only) -->
+  <!-- Background Cat Paw Particle Layer (Desktop Only) -->
   <div id="pawTrailContainer" class="paw-trail-layer"></div>
 
   <!-- ==================== 1. LOGIN SCREEN ==================== -->
@@ -17,7 +17,6 @@
     <div class="login-card">
       <header class="login-header">
         <div class="login-avatar-cat">
-          <span class="avatar-ears"></span>
           <span class="avatar-face">🐱</span>
         </div>
         <h1>Classroom Study Portal</h1>
@@ -106,14 +105,14 @@
             <article class="card highlight-card">
               <div class="card-tag">Assessment</div>
               <h3>Weekly Sample Paper</h3>
-              <p>Protected read-only question paper viewer with watermarked student copy.</p>
+              <p>Protected read-only question paper viewer with student copy.</p>
               <button class="btn btn-primary" onclick="switchTab('tab-paper')">Open Paper Viewer &rarr;</button>
             </article>
 
             <article class="card">
               <div class="card-tag secondary">Student Forum</div>
               <h3>Peer Discussion Lounge</h3>
-              <p>Post doubt queries, compare answers, and discuss study topics with batchmates.</p>
+              <p>Post doubt queries, compare answers, and discuss study topics with BONDHU(S).</p>
               <button class="btn btn-secondary" onclick="switchTab('tab-discussion')">Join Discussion &rarr;</button>
             </article>
 
@@ -125,29 +124,27 @@
             </article>
           </section>
 
-          <!-- Announcements & Comments/Doubt Box Grid -->
+          <!-- Announcements & Notes Grid -->
           <div class="home-bottom-grid">
             
-            <!-- Class Notice Board -->
             <section class="card notice-card">
               <div class="card-tag">Announcements</div>
               <h3>Class Notice Board</h3>
               <ul class="notice-list">
-                <li><strong>Noticee</strong>Nothing such for now,Chill Dude :) </li>
+                <li><strong>Noticee</strong>Nothing such for now,Chill Dude :) </li> 
               </ul>
             </section>
 
-            <!-- Send Note / Comment to Swati Ma'am -->
             <section class="card feedback-card">
               <div class="card-tag">Direct Desk</div>
               <h3>Send a Note to Swati Ma'am</h3>
               <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                Have a doubt, homework question, or absence notice? Submit it here for ma'am to review.
+                Have a doubt, homework question, or absence notice? Submit it here for the instructor to review.
               </p>
               <form id="feedbackForm">
                 <textarea id="feedbackText" rows="3" placeholder="Type your note or doubt here..." required></textarea>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
-                  <span id="feedbackNotice" style="font-size: 0.82rem; color: var(--accent-emerald); display: none;">Note sent to faculty!</span>
+                  <span id="feedbackNotice" style="font-size: 0.82rem; color: var(--accent-emerald); display: none;">Note sent to MA'AM!</span>
                   <button type="submit" class="btn btn-primary btn-sm">Send Note &rarr;</button>
                 </div>
               </form>
@@ -161,8 +158,16 @@
       <section id="tab-paper" class="tab-content">
         <div class="viewer-header-row">
           <div>
-            <h2>Weekly Evaluation Paper</h2>
+            <h2>Weekly Evaluation Desk</h2>
             <p class="subtext">Read-only academic assessment copy. Screen capture &amp; printing restricted.</p>
+          </div>
+
+          <!-- Paper Archive Selector -->
+          <div class="paper-selector-wrap">
+            <label for="paperSelect"><strong>Choose Paper:</strong></label>
+            <select id="paperSelect" class="form-select" style="min-width: 240px;">
+              <option value="">Loading papers...</option>
+            </select>
           </div>
         </div>
 
@@ -201,12 +206,10 @@
       <section id="tab-discussion" class="tab-content">
         <div class="page-header">
           <h2>Student Discussion Lounge</h2>
-          <p>Collaborate, clear doubts, and discuss weekly assignments with your batchmates.</p>
+          <p>Collaborate, clear doubts, and discuss weekly assignments with your BONDHU(S).</p>
         </div>
 
         <div class="discussion-container">
-          
-          <!-- Post Question Form -->
           <div class="card post-doubt-card">
             <h3>Start a Discussion / Post a Doubt</h3>
             <form id="discussionForm">
@@ -222,11 +225,7 @@
             </form>
           </div>
 
-          <!-- Feed of Discussions -->
-          <div class="discussion-feed" id="discussionFeed">
-            <!-- Dynamically populated via js/app.js -->
-          </div>
-
+          <div class="discussion-feed" id="discussionFeed"></div>
         </div>
       </section>
 
@@ -277,7 +276,7 @@
         <div class="contact-grid">
           <div class="card contact-card">
             <h3>Classroom Desk</h3>
-            <p class="location-text">📍 <strong>Location:</strong>Sethpukur, Barasat, North 24 Parganas</p>
+            <p class="location-text">📍 <strong>Location:</strong> Barasat, North 24 Parganas</p>
             <div class="contact-channels">
               <div class="channel-item">
                 <span class="channel-label">Academic Head:</span>
@@ -305,14 +304,12 @@
 
     </main>
 
-    <!-- Master Footer -->
     <footer class="portal-footer">
       <p>Developed by <strong>ShreyanCat</strong></p>
     </footer>
 
   </div>
 
-  <!-- Unified Engine & Cat Assistant -->
   <script src="js/app.js"></script>
 </body>
 </html>
