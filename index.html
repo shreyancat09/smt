@@ -3,26 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Classroom Study Portal</title>
+  <title>SMT Study Portal</title>
   <link rel="stylesheet" href="css/style.css">
-  <!-- PDF.js Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
+
+  <!-- Background Cat Paw Particle Canvas (Desktop Only) -->
+  <div id="pawTrailContainer" class="paw-trail-layer"></div>
 
   <!-- ==================== 1. LOGIN SCREEN ==================== -->
   <main id="loginScreen" class="auth-wrapper">
     <div class="login-card">
       <header class="login-header">
-        <div class="login-avatar">🐱</div>
-        <h1>Tuition Study Portal</h1>
-        <p>Private Continuous Assessment Desk</p>
+        <div class="login-avatar-cat">
+          <span class="avatar-ears"></span>
+          <span class="avatar-face">🐱</span>
+        </div>
+        <h1>Classroom Study Portal</h1>
+        <p>Continuous Evaluation &amp; Resource Hub</p>
       </header>
 
       <form id="loginForm" autocomplete="off">
         <div class="form-group">
           <label for="studentName">Student Name</label>
-          <input type="text" id="studentName" placeholder="Enter your name" required spellcheck="false">
+          <input type="text" id="studentName" placeholder="Enter your registered name" required spellcheck="false">
         </div>
 
         <div class="form-group">
@@ -35,7 +40,7 @@
       </form>
 
       <footer class="login-footer">
-        <p>Developed by <strong>ShreyanCat - Master developer, ShreyanAI</strong></p>
+        <p>Developed by <strong>ShreyanCat</strong></p>
       </footer>
     </div>
   </main>
@@ -43,17 +48,18 @@
   <!-- ==================== 2. MAIN APP PORTAL ==================== -->
   <div id="portalScreen" style="display: none;">
     
-    <!-- Top Navigation (Tabs) -->
+    <!-- Top Navigation Bar -->
     <header class="top-nav">
       <div class="nav-container">
         <div class="brand">
-          <span class="logo-mark">📖</span>
+          <span class="brand-paw">🐾</span>
           <span class="brand-name">Tuition Portal</span>
         </div>
 
         <nav class="nav-tabs">
           <button class="nav-tab-btn active" data-tab="tab-home">Home</button>
           <button class="nav-tab-btn" data-tab="tab-paper">Sample Paper</button>
+          <button class="nav-tab-btn" data-tab="tab-discussion">Discussion Lounge</button>
           <button class="nav-tab-btn" data-tab="tab-arcade">Arcade Zone</button>
           <button class="nav-tab-btn" data-tab="tab-contact">Contact</button>
         </nav>
@@ -66,13 +72,12 @@
       </div>
     </header>
 
-    <!-- Main Tab View Container -->
     <main class="page-container">
 
       <!-- ================= TAB 1: HOME ================= -->
       <section id="tab-home" class="tab-content active">
         
-        <!-- Fee Lock Screen (Shown ONLY if student is locked by you) -->
+        <!-- Fee Lock Screen (Shown only when locked by admin) -->
         <div id="feeLockScreen" class="fee-lock-card" style="display: none;">
           <div class="lock-shield-icon">🛡️</div>
           <h2>Portal Access On Hold</h2>
@@ -87,38 +92,68 @@
           </div>
         </div>
 
-        <!-- Normal Dashboard View -->
+        <!-- Normal Dashboard -->
         <div id="homeUnlockedView">
           <section class="welcome-card">
             <div>
               <h2 id="welcomeGreeting">Welcome back!</h2>
-              <p>Review this week's active evaluation papers and test announcements.</p>
+              <p>Review this week's active evaluation papers, notice updates, and discussions.</p>
             </div>
             <div class="date-badge">Academic Session 2026–27</div>
           </section>
 
           <section class="portal-grid">
             <article class="card highlight-card">
-              <div class="card-tag">Weekly Evaluation</div>
-              <h3>Active Sample Paper</h3>
-              <p>Read-only question paper copy protected by dynamic watermarks.</p>
+              <div class="card-tag">Assessment</div>
+              <h3>Weekly Sample Paper</h3>
+              <p>Protected read-only question paper viewer with watermarked student copy.</p>
               <button class="btn btn-primary" onclick="switchTab('tab-paper')">Open Paper Viewer &rarr;</button>
             </article>
 
             <article class="card">
-              <div class="card-tag secondary">Refreshment</div>
-              <h3>Breakout Arcade</h3>
-              <p>Take a 5-minute study break, break the bricks, and set the high score.</p>
-              <button class="btn btn-secondary" onclick="switchTab('tab-arcade')">Play Arcade &rarr;</button>
+              <div class="card-tag secondary">Student Forum</div>
+              <h3>Peer Discussion Lounge</h3>
+              <p>Post doubt queries, compare answers, and discuss study topics with batchmates.</p>
+              <button class="btn btn-secondary" onclick="switchTab('tab-discussion')">Join Discussion &rarr;</button>
             </article>
 
-            <article class="card notice-card">
+            <article class="card">
+              <div class="card-tag tertiary">Refreshment</div>
+              <h3>Breakout Arcade</h3>
+              <p>5-minute reflex reset game. Break bricks, collect powers, and set records.</p>
+              <button class="btn btn-secondary" onclick="switchTab('tab-arcade')">Play Arcade &rarr;</button>
+            </article>
+          </section>
+
+          <!-- Announcements & Comments/Doubt Box Grid -->
+          <div class="home-bottom-grid">
+            
+            <!-- Class Notice Board -->
+            <section class="card notice-card">
               <div class="card-tag">Announcements</div>
               <h3>Class Notice Board</h3>
               <ul class="notice-list">
+                <li><strong>Noticee</strong>Nothing such for now,Chill Dude :) </li>
               </ul>
-            </article>
-          </section>
+            </section>
+
+            <!-- Send Note / Comment to Swati Ma'am -->
+            <section class="card feedback-card">
+              <div class="card-tag">Direct Desk</div>
+              <h3>Send a Note to Swati Ma'am</h3>
+              <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                Have a doubt, homework question, or absence notice? Submit it here for ma'am to review.
+              </p>
+              <form id="feedbackForm">
+                <textarea id="feedbackText" rows="3" placeholder="Type your note or doubt here..." required></textarea>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                  <span id="feedbackNotice" style="font-size: 0.82rem; color: var(--accent-emerald); display: none;">Note sent to faculty!</span>
+                  <button type="submit" class="btn btn-primary btn-sm">Send Note &rarr;</button>
+                </div>
+              </form>
+            </section>
+
+          </div>
         </div>
       </section>
 
@@ -127,12 +162,12 @@
         <div class="viewer-header-row">
           <div>
             <h2>Weekly Evaluation Paper</h2>
-            <p class="subtext">Read-only academic assessment copy. Screen capture & printing restricted.</p>
+            <p class="subtext">Read-only academic assessment copy. Screen capture &amp; printing restricted.</p>
           </div>
         </div>
 
         <div class="security-banner">
-          <span> Protected Session: Viewing as <strong id="securityStudentTag">Student</strong>.</span>
+          <span>🛡️ Protected Session: Viewing as <strong id="securityStudentTag">Student</strong>.</span>
         </div>
 
         <div class="viewer-workspace">
@@ -162,7 +197,40 @@
         </div>
       </section>
 
-      <!-- ================= TAB 3: ARCADE ================= -->
+      <!-- ================= TAB 3: DISCUSSION LOUNGE ================= -->
+      <section id="tab-discussion" class="tab-content">
+        <div class="page-header">
+          <h2>Student Discussion Lounge</h2>
+          <p>Collaborate, clear doubts, and discuss weekly assignments with your batchmates.</p>
+        </div>
+
+        <div class="discussion-container">
+          
+          <!-- Post Question Form -->
+          <div class="card post-doubt-card">
+            <h3>Start a Discussion / Post a Doubt</h3>
+            <form id="discussionForm">
+              <div class="form-group" style="margin-bottom: 0.75rem;">
+                <input type="text" id="discussionTopic" placeholder="Topic / Question Title (e.g. Q3 in History Mock Paper)" required>
+              </div>
+              <div class="form-group" style="margin-bottom: 0.75rem;">
+                <textarea id="discussionContent" rows="3" placeholder="Explain your doubt or question in detail..." required></textarea>
+              </div>
+              <div style="display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn btn-primary">Post to Lounge &rarr;</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Feed of Discussions -->
+          <div class="discussion-feed" id="discussionFeed">
+            <!-- Dynamically populated via js/app.js -->
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: ARCADE ================= -->
       <section id="tab-arcade" class="tab-content">
         <div class="page-header">
           <h2>Arcade Refreshment Zone</h2>
@@ -190,7 +258,7 @@
                 <p id="overlaySub">Bounce the ball, break all bricks, and catch wide-paddles and multi-balls!</p>
                 <div class="controls-guide">
                   <span>🖥️ <strong>Controls:</strong> Mouse or Left / Right Arrow Keys</span><br>
-                  <span>📱 <strong>Mobile:</strong> Swipe / Drag finger across the screen</span>
+                  <span>📱 <strong>Mobile:</strong> Drag finger across the screen</span>
                 </div>
                 <button id="overlayActionBtn" class="btn btn-primary">Start Game &rarr;</button>
               </div>
@@ -199,7 +267,7 @@
         </div>
       </section>
 
-      <!-- ================= TAB 4: CONTACT ================= -->
+      <!-- ================= TAB 5: CONTACT ================= -->
       <section id="tab-contact" class="tab-content">
         <div class="page-header">
           <h2>Classroom Desk &amp; Guidelines</h2>
@@ -215,14 +283,10 @@
                 <span class="channel-label">Academic Head:</span>
                 <span class="channel-value">Swati Bhattacharyya</span>
               </div>
-              <div class="channel-item">
-                <span class="channel-label">Evaluation Schedule:</span>
-                <span class="channel-value">Every alternate Sunday</span>
-              </div>
             </div>
             <div class="whatsapp-box">
               <p>Need guidance or intimation regarding batch timings?</p>
-              <a href="https://wa.me/91XXXXXXXXXX?text=Hello%20Maam,%20inquiring%20about%20the%20batch..." target="_blank" class="btn btn-whatsapp">
+              <a href="https://wa.me/918910337293?text=Hello%20Maam,%20inquiring%20about%20the%20batch..." target="_blank" class="btn btn-whatsapp">
                 💬 Message on WhatsApp
               </a>
             </div>
@@ -241,15 +305,14 @@
 
     </main>
 
-    <!-- Master Developer Footer -->
+    <!-- Master Footer -->
     <footer class="portal-footer">
-      <p>Developed by <strong>ShreyanCat - Master developer, ShreyanAI</strong></p>
+      <p>Developed by <strong>ShreyanCat</strong></p>
     </footer>
 
   </div>
 
-  <!-- Unified Scripts -->
+  <!-- Unified Engine & Cat Assistant -->
   <script src="js/app.js"></script>
-  <script src="js/cat-bot.js"></script>
 </body>
 </html>
