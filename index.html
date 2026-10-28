@@ -1,64 +1,255 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Portal | Sign In</title>
+  <title>Classroom Study Portal</title>
   <link rel="stylesheet" href="css/style.css">
+  <!-- PDF.js Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
-<body class="auth-body">
+<body>
 
-  <main class="login-wrapper">
-    <div class="login-box">
-      <!-- Portal Brand -->
+  <!-- ==================== 1. LOGIN SCREEN ==================== -->
+  <main id="loginScreen" class="auth-wrapper">
+    <div class="login-card">
       <header class="login-header">
-        <div class="badge-icon">📚</div>
-        <h1>Classroom Study Portal</h1>
-        <p>Private Tuition & Continuous Assessment Desk</p>
+        <div class="login-avatar">🐱</div>
+        <h1>Tuition Study Portal</h1>
+        <p>Private Continuous Assessment Desk</p>
       </header>
 
-      <!-- Sign In Form -->
-      <form id="loginForm" class="login-form" autocomplete="off">
+      <form id="loginForm" autocomplete="off">
         <div class="form-group">
-          <label for="studentName">Student Name / Roll ID</label>
-          <input 
-            type="text" 
-            id="studentName" 
-            name="studentName" 
-            placeholder="e.g. Surottam / Adrita" 
-            required 
-            spellcheck="false"
-          >
+          <label for="studentName">Student Name</label>
+          <input type="text" id="studentName" placeholder="Enter your name" required spellcheck="false">
         </div>
 
         <div class="form-group">
           <label for="studentPass">Access Key (PIN)</label>
-          <input 
-            type="password" 
-            id="studentPass" 
-            name="studentPass" 
-            placeholder="Enter your 4 or 6-digit key" 
-            required 
-            maxlength="20"
-          >
+          <input type="password" id="studentPass" placeholder="Enter your 4-digit key" required maxlength="10">
         </div>
 
-        <div class="form-actions">
-          <button type="submit" id="loginBtn" class="btn btn-primary">
-            Enter Classroom &rarr;
-          </button>
-        </div>
-
-        <div id="authError" class="auth-error" style="display: none;" role="alert"></div>
+        <button type="submit" class="btn btn-primary btn-block">Enter Classroom &rarr;</button>
+        <div id="authError" class="auth-error" style="display: none;"></div>
       </form>
 
       <footer class="login-footer">
-        <p>Forgot your access PIN? Ask the instructor directly during batch hours.</p>
+        <p>Developed by <strong>ShreyanCat - Master developer, ShreyanAI</strong></p>
       </footer>
     </div>
   </main>
 
-  <!-- Login Logic -->
-  <script src="js/auth.js"></script>
+  <!-- ==================== 2. MAIN APP PORTAL ==================== -->
+  <div id="portalScreen" style="display: none;">
+    
+    <!-- Top Navigation (Tabs) -->
+    <header class="top-nav">
+      <div class="nav-container">
+        <div class="brand">
+          <span class="logo-mark">📖</span>
+          <span class="brand-name">Tuition Portal</span>
+        </div>
+
+        <nav class="nav-tabs">
+          <button class="nav-tab-btn active" data-tab="tab-home">Home</button>
+          <button class="nav-tab-btn" data-tab="tab-paper">Sample Paper</button>
+          <button class="nav-tab-btn" data-tab="tab-arcade">Arcade Zone</button>
+          <button class="nav-tab-btn" data-tab="tab-contact">Contact</button>
+        </nav>
+
+        <div class="user-control">
+          <button id="themeToggleBtn" class="btn-theme-toggle">🌙 Dark</button>
+          <span class="student-pill" id="studentDisplay">Student</span>
+          <button id="logoutBtn" class="btn btn-outline-sm">Log Out</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Tab View Container -->
+    <main class="page-container">
+
+      <!-- ================= TAB 1: HOME ================= -->
+      <section id="tab-home" class="tab-content active">
+        
+        <!-- Fee Lock Screen (Shown ONLY if student is locked by you) -->
+        <div id="feeLockScreen" class="fee-lock-card" style="display: none;">
+          <div class="lock-shield-icon">🛡️</div>
+          <h2>Portal Access On Hold</h2>
+          <p id="feeLockMessage">
+            Tuition fees for recent months are pending. Please clear dues with Swati Ma'am to regain portal access.
+          </p>
+          <div class="fee-lock-actions">
+            <a href="https://wa.me/918910337293?text=Hello%20Maam,%20I%20am%20inquiring%20about%20my%20tuition%20fees." 
+               target="_blank" class="btn btn-whatsapp">
+              💬 Message Swati Ma'am on WhatsApp
+            </a>
+          </div>
+        </div>
+
+        <!-- Normal Dashboard View -->
+        <div id="homeUnlockedView">
+          <section class="welcome-card">
+            <div>
+              <h2 id="welcomeGreeting">Welcome back!</h2>
+              <p>Review this week's active evaluation papers and test announcements.</p>
+            </div>
+            <div class="date-badge">Academic Session 2026–27</div>
+          </section>
+
+          <section class="portal-grid">
+            <article class="card highlight-card">
+              <div class="card-tag">Weekly Evaluation</div>
+              <h3>Active Sample Paper</h3>
+              <p>Read-only question paper copy protected by dynamic watermarks.</p>
+              <button class="btn btn-primary" onclick="switchTab('tab-paper')">Open Paper Viewer &rarr;</button>
+            </article>
+
+            <article class="card">
+              <div class="card-tag secondary">Refreshment</div>
+              <h3>Breakout Arcade</h3>
+              <p>Take a 5-minute study break, break the bricks, and set the high score.</p>
+              <button class="btn btn-secondary" onclick="switchTab('tab-arcade')">Play Arcade &rarr;</button>
+            </article>
+
+            <article class="card notice-card">
+              <div class="card-tag">Announcements</div>
+              <h3>Class Notice Board</h3>
+              <ul class="notice-list">
+              </ul>
+            </article>
+          </section>
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: SAMPLE PAPER ================= -->
+      <section id="tab-paper" class="tab-content">
+        <div class="viewer-header-row">
+          <div>
+            <h2>Weekly Evaluation Paper</h2>
+            <p class="subtext">Read-only academic assessment copy. Screen capture & printing restricted.</p>
+          </div>
+        </div>
+
+        <div class="security-banner">
+          <span> Protected Session: Viewing as <strong id="securityStudentTag">Student</strong>.</span>
+        </div>
+
+        <div class="viewer-workspace">
+          <div class="viewer-toolbar">
+            <div class="toolbar-left">
+              <button id="prevPageBtn" class="btn btn-sm">&larr; Previous</button>
+              <span class="page-counter">Page <span id="currentPageNum">1</span> of <span id="totalPagesNum">1</span></span>
+              <button id="nextPageBtn" class="btn btn-sm">Next &rarr;</button>
+            </div>
+            <div class="toolbar-right">
+              <button id="zoomOutBtn" class="btn btn-icon">-</button>
+              <span id="zoomLevel">100%</span>
+              <button id="zoomInBtn" class="btn btn-icon">+</button>
+            </div>
+          </div>
+
+          <div class="canvas-viewport" id="canvasViewport">
+            <div id="securityBlurScreen" class="security-blur-overlay" style="display: none;">
+              <div class="security-blur-msg">
+                <p>⚠️ Viewing paused. Window focus lost or screenshot tool active.</p>
+                <p>Tap back inside the screen to resume reading.</p>
+              </div>
+            </div>
+            <canvas id="watermarkCanvas" class="watermark-layer"></canvas>
+            <canvas id="documentCanvas" class="document-layer"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: ARCADE ================= -->
+      <section id="tab-arcade" class="tab-content">
+        <div class="page-header">
+          <h2>Arcade Refreshment Zone</h2>
+          <p>Clear the bricks, collect falling power-ups, and beat the tuition record.</p>
+        </div>
+
+        <div class="game-stage">
+          <div class="stage-header">
+            <div class="blitz-stats">
+              <div class="stat-pill"><span class="stat-label">SCORE</span><span class="stat-val" id="arcadeScore">0</span></div>
+              <div class="stat-pill"><span class="stat-label">LIVES</span><span class="stat-val" id="arcadeLives">❤️❤️❤️</span></div>
+              <div class="stat-pill highlight"><span class="stat-label">HIGH SCORE</span><span class="stat-val" id="arcadeHighScore">0</span></div>
+            </div>
+            <div class="header-actions">
+              <button id="pauseArcadeBtn" class="btn btn-outline-sm">Pause</button>
+              <button id="resetArcadeBtn" class="btn btn-outline-sm">Restart</button>
+            </div>
+          </div>
+
+          <div class="arcade-viewport-wrapper">
+            <canvas id="breakoutCanvas" width="720" height="480"></canvas>
+            <div id="arcadeOverlay" class="arcade-overlay">
+              <div class="arcade-modal">
+                <h3 id="overlayTitle">⚡ BREAKOUT ARCADE</h3>
+                <p id="overlaySub">Bounce the ball, break all bricks, and catch wide-paddles and multi-balls!</p>
+                <div class="controls-guide">
+                  <span>🖥️ <strong>Controls:</strong> Mouse or Left / Right Arrow Keys</span><br>
+                  <span>📱 <strong>Mobile:</strong> Swipe / Drag finger across the screen</span>
+                </div>
+                <button id="overlayActionBtn" class="btn btn-primary">Start Game &rarr;</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: CONTACT ================= -->
+      <section id="tab-contact" class="tab-content">
+        <div class="page-header">
+          <h2>Classroom Desk &amp; Guidelines</h2>
+          <p>Direct communication channel and batch protocols.</p>
+        </div>
+
+        <div class="contact-grid">
+          <div class="card contact-card">
+            <h3>Classroom Desk</h3>
+            <p class="location-text">📍 <strong>Location:</strong>Sethpukur, Barasat, North 24 Parganas</p>
+            <div class="contact-channels">
+              <div class="channel-item">
+                <span class="channel-label">Academic Head:</span>
+                <span class="channel-value">Swati Bhattacharyya</span>
+              </div>
+              <div class="channel-item">
+                <span class="channel-label">Evaluation Schedule:</span>
+                <span class="channel-value">Every alternate Sunday</span>
+              </div>
+            </div>
+            <div class="whatsapp-box">
+              <p>Need guidance or intimation regarding batch timings?</p>
+              <a href="https://wa.me/91XXXXXXXXXX?text=Hello%20Maam,%20inquiring%20about%20the%20batch..." target="_blank" class="btn btn-whatsapp">
+                💬 Message on WhatsApp
+              </a>
+            </div>
+          </div>
+
+          <div class="card guidelines-card">
+            <h3>Batch Protocols</h3>
+            <ol class="guideline-list">
+              <li><strong>Punctuality:</strong> Arrive 5 minutes before scheduled batch timing.</li>
+              <li><strong>Assessments:</strong> Missing a scheduled evaluation requires prior guardian notice.</li>
+              <li><strong>Confidentiality:</strong> Do not distribute portal evaluation materials.</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Master Developer Footer -->
+    <footer class="portal-footer">
+      <p>Developed by <strong>ShreyanCat - Master developer, ShreyanAI</strong></p>
+    </footer>
+
+  </div>
+
+  <!-- Unified Scripts -->
+  <script src="js/app.js"></script>
+  <script src="js/cat-bot.js"></script>
 </body>
 </html>
