@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faculty Admin Desk</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-wrapper" style="padding: 1.5rem 0; display: block; overflow-y: auto;">
+
+  <div class="page-container" style="max-width: 850px;">
+    
+    <div class="welcome-card">
+      <div>
+        <h2>Faculty Desk — Student Fees &amp; Logs</h2>
+        <p>You control who has paid and who is locked out.</p>
+      </div>
+      <a href="index.html" class="btn btn-outline-sm">&larr; Return to Portal</a>
+    </div>
+
+    <!-- Paper Upload Step for Mom -->
+    <div class="card" style="margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
+      <h3>📤 How to Upload This Week's Paper</h3>
+      <p style="font-size: 0.92rem; margin-top: 0.4rem;">
+        1. Open this repository on GitHub on your phone.<br>
+        2. Tap the <strong>papers</strong> folder &rarr; tap <strong>Add file</strong> &rarr; <strong>Upload files</strong>.<br>
+        3. Pick your PDF, rename it to <strong>weekly.pdf</strong>, and tap <strong>Commit changes</strong>.
+      </p>
+    </div>
+
+    <!-- Student Fee Control Table -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3>Student Fees Status</h3>
+        <button id="saveRosterBtn" class="btn btn-primary btn-sm">💾 Save Fee Status</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="academic-table">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Status</th>
+              <th>Pending Months (If unpaid)</th>
+            </tr>
+          </thead>
+          <tbody id="studentRosterBody"></tbody>
+        </table>
+      </div>
+      <p id="saveNotice" style="display: none; color: #16a34a; font-weight: 600; margin-top: 0.75rem;">
+        Changes saved! Unpaid students are now locked.
+      </p>
+    </div>
+
+    <!-- Live Access Logs -->
+    <div class="card">
+      <h3>Recent Student Logins</h3>
+      <div class="table-responsive">
+        <table class="academic-table">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Login Time</th>
+            </tr>
+          </thead>
+          <tbody id="accessLogBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Master Developer Footer -->
+    <footer class="portal-footer">
+      <p>Developed by <strong>ShreyanCat - Master developer, ShreyanAI</strong></p>
+    </footer>
+
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const roster = JSON.parse(localStorage.getItem("tuition_roster_v3") || "{}");
+      const tbody = document.getElementById("studentRosterBody");
+      const logBody = document.getElementById("accessLogBody");
+      const saveBtn = document.getElementById("saveRosterBtn");
+      const saveNotice = document.getElementById("saveNotice");
+
+      // Populate Students
+      for (const [key, student] of Object.entries(roster)) {
+        if (key === "admin") continue;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${student.name}</strong></td>
+          <td>
+            <select class="status-sel" data-id="${key}" style="padding: 0.35rem; border-radius: 4px; border: 1px solid #cbd5e1;">
+              <option value="paid" ${student.feesPaid ? "selected" : ""}>✅ Paid (Unlocked)</option>
+              <option value="unpaid" ${!student.feesPaid ? "selected" : ""}>❌ Unpaid (Locked)</option>
+            </select>
+          </td>
+          <td>
+            <input type="text" class="months-inp" data-id="${key}" value="${student.pendingMonths || ''}" 
+                   placeholder="e.g. October" style="padding: 0.35rem 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%;">
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      // Populate Logins
+      const logs = JSON.parse(localStorage.getItem("tuition_access_logs_v3") || "[]");
+      if (logs.length === 0) {
+        logBody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: #64748b;">No logins recorded yet today.</td></tr>`;
+      } else {
+        logs.forEach(l => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td><strong>${l.name}</strong></td><td>${l.time}</td>`;
+          logBody.appendChild(row);
+        });
+      }
+
+      // Save Click
+      saveBtn.addEventListener("click", () => {
+        document.querySelectorAll(".status-sel").forEach(s => {
+          const id = s.getAttribute("data-id");
+          roster[id].feesPaid = (s.value === "paid");
+        });
+        document.querySelectorAll(".months-inp").forEach(i => {
+          const id = i.getAttribute("data-id");
+          roster[id].pendingMonths = i.value.trim();
+        });
+
+        localStorage.setItem("tuition_roster_v3", JSON.stringify(roster));
+        saveNotice.style.display = "block";
+        setTimeout(() => saveNotice.style.display = "none", 3000);
+      });
+    });
+  </script>
+</body>
+</html>
