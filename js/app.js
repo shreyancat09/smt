@@ -1,16 +1,17 @@
 /* ==========================================================================
    TUITION STUDY PORTAL - ZERO-TOKEN MASTER ENGINE
    Features:
-   - High-DPI Canvas Rendering with Dynamic Width Scaling (No 100% Clamp)
-   - Smooth Mobile Pinch-to-Zoom & Horizontal/Vertical Swiping
-   - Zoom range from 100% up to 300% for easy mobile reading
-   - Pure WhatsApp doubt submission (no servers needed)
+   - Dedicated Faculty Desk tab shown exclusively for Admin
+   - Live roster & paper catalog fetched directly from GitHub repository files
+   - Retina High-DPI Canvas Rendering with Dynamic Width Scaling (No 100% Clamp)
+   - Smooth Mobile Pinch-to-Zoom & Horizontal/Vertical Swiping (100% to 300%)
+   - Direct WhatsApp doubt routing (no server required)
    - Mobile anti-pull-to-refresh Breakout Arcade
    - ShreyanCat Companion & Desktop Paw Trail
    ========================================================================== */
 
 // Configure Instructor WhatsApp Phone Number (with Country Code, no '+' or spaces)
-const SWATI_MAAM_PHONE = "91XXXXXXXXXX";
+const SWATI_MAAM_PHONE = "918910337293";
 
 // 1. Live Global Roster Fetch (Pulls fresh status from papers/roster.json)
 async function getLiveRoster() {
@@ -33,11 +34,17 @@ function getSession() {
   return s ? JSON.parse(s) : null;
 }
 
-// 2. Tab Navigation Switcher (Instant & Zero 404s)
+// 2. Tab Navigation Switcher
 function switchTab(tabId) {
   const session = getSession();
   if (session && !session.feesPaid && tabId !== "tab-home" && tabId !== "tab-contact") {
     alert("Portal access is paused. Please clear dues with Swati Ma'am.");
+    return;
+  }
+
+  // Restrict Admin tab to admin user only
+  if (tabId === "tab-admin" && (!session || session.id !== "admin")) {
+    alert("Faculty Desk is restricted to administrative staff.");
     return;
   }
 
@@ -51,6 +58,7 @@ function switchTab(tabId) {
 
   if (tabId === "tab-paper") initPDFViewer();
   if (tabId === "tab-discussion") renderDiscussions();
+  if (tabId === "tab-admin") renderAdminRoster();
 }
 
 // 3. Theme Management
@@ -70,15 +78,17 @@ function toggleTheme() {
   if (btn) btn.textContent = next === "dark" ? "☀️ Light" : "🌙 Dark";
 }
 
-// 4. Session Validation & Fee Lock Renderer
+// 4. Session Validation & Role-Based UI Rendering
 async function checkAuthAndRender() {
   const session = getSession();
   const loginScreen = document.getElementById("loginScreen");
   const portalScreen = document.getElementById("portalScreen");
+  const adminNavTab = document.getElementById("adminNavTab");
 
   if (!session) {
     loginScreen.style.display = "flex";
     portalScreen.style.display = "none";
+    if (adminNavTab) adminNavTab.style.display = "none";
     return;
   }
 
@@ -94,9 +104,17 @@ async function checkAuthAndRender() {
   loginScreen.style.display = "none";
   portalScreen.style.display = "block";
 
+  // Check if logged in user is Admin
+  const isAdmin = (session.id === "admin");
+  if (adminNavTab) {
+    adminNavTab.style.display = isAdmin ? "inline-block" : "none";
+  }
+
   document.querySelectorAll("#studentDisplay, #securityStudentTag").forEach(el => el.textContent = session.name);
   const greet = document.getElementById("welcomeGreeting");
-  if (greet) greet.textContent = `Welcome back, ${session.name}!`;
+  if (greet) {
+    greet.textContent = isAdmin ? "Welcome Swati Ma'am!" : `Welcome back, ${session.name}!`;
+  }
 
   const homeUnlocked = document.getElementById("homeUnlockedView");
   const feeCard = document.getElementById("feeLockScreen");
@@ -116,9 +134,41 @@ async function checkAuthAndRender() {
       feeWaBtn.href = `https://wa.me/${SWATI_MAAM_PHONE}?text=${encodeURIComponent("Hello Swati Ma'am, I am " + session.name + ". I am writing regarding my pending tuition fees.")}`;
     }
   }
+
+  // Automatically switch Admin directly to the Faculty Desk upon login
+  if (isAdmin) {
+    switchTab("tab-admin");
+  }
 }
 
-// 5. Desktop-Only Cat Paw Trail Effect
+// 5. Render Admin Roster Directory
+async function renderAdminRoster() {
+  const tbody = document.getElementById("adminRosterTbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Fetching directory...</td></tr>`;
+  const roster = await getLiveRoster();
+
+  tbody.innerHTML = "";
+  for (const [key, student] of Object.entries(roster)) {
+    if (key === "admin") continue;
+    const tr = document.createElement("tr");
+
+    const statusBadge = student.feesPaid
+      ? `<span style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; padding: 0.2rem 0.55rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">✅ Paid (Unlocked)</span>`
+      : `<span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 0.2rem 0.55rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">❌ Dues Pending (Locked)</span>`;
+
+    tr.innerHTML = `
+      <td><strong>${student.name}</strong></td>
+      <td><code>${student.pin}</code></td>
+      <td>${statusBadge}</td>
+      <td><small style="color: var(--text-muted);">${student.pendingMonths || "None"}</small></td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+
+// 6. Desktop-Only Cat Paw Trail Effect
 function initPawTrail() {
   if (window.matchMedia("(pointer: fine)").matches && window.innerWidth > 768) {
     let lastTime = 0;
@@ -142,7 +192,7 @@ function initPawTrail() {
   }
 }
 
-// 6. Discussion Lounge
+// 7. Discussion Lounge
 const INITIAL_DISCUSSIONS = [
   {
     id: "d1",
@@ -232,7 +282,7 @@ function renderDiscussions() {
   });
 }
 
-// 7. Student Notes Routing Directly to WhatsApp
+// 8. Student Notes Routing Directly to WhatsApp
 function initFeedback() {
   const form = document.getElementById("feedbackForm");
   if (!form) return;
@@ -249,7 +299,7 @@ function initFeedback() {
   });
 }
 
-// 8. PDF.js Viewer with High-DPI Canvas Sharpening, Zoom (up to 300%) & Pinch
+// 9. PDF.js Viewer with High-DPI Canvas Sharpening, Zoom (up to 300%) & Pinch
 let pdfDoc = null;
 let currentPage = 1;
 let zoom = 1.0;
@@ -327,13 +377,9 @@ async function renderPDFPage(pageNum, docCanvas, markCanvas, docCtx, markCtx, se
   const page = await pdfDoc.getPage(pageNum);
   const viewportContainer = document.getElementById("canvasViewport");
 
-  // Base mobile width (fits container at 1.0x)
   const containerWidth = (viewportContainer && viewportContainer.clientWidth) ? (viewportContainer.clientWidth - 16) : 360;
-  
-  // Calculate display width: at zoom 2.0x, displayWidth is 2x screen size so user can pan horizontally
   const displayWidth = Math.round(containerWidth * zoom);
   
-  // High-DPI internal buffer multiplier (Retina sharpness)
   const dpr = window.devicePixelRatio || 1;
   const unscaledViewport = page.getViewport({ scale: 1.0 });
   const scaleRatio = (displayWidth / unscaledViewport.width) * dpr;
@@ -341,13 +387,11 @@ async function renderPDFPage(pageNum, docCanvas, markCanvas, docCtx, markCtx, se
 
   const displayHeight = Math.round((unscaledViewport.height / unscaledViewport.width) * displayWidth);
 
-  // Hardware high-resolution internal pixel buffer
   docCanvas.width = renderViewport.width;
   docCanvas.height = renderViewport.height;
   markCanvas.width = renderViewport.width;
   markCanvas.height = renderViewport.height;
 
-  // Crucial fix: Display CSS size expands with zoom level instead of locking to 100%!
   docCanvas.style.width = `${displayWidth}px`;
   docCanvas.style.height = `${displayHeight}px`;
   markCanvas.style.width = `${displayWidth}px`;
@@ -355,7 +399,6 @@ async function renderPDFPage(pageNum, docCanvas, markCanvas, docCtx, markCtx, se
 
   await page.render({ canvasContext: docCtx, viewport: renderViewport }).promise;
 
-  // Stamped watermark: ONLY Student Name & Confidentiality (NO PIN, NO CLASS)
   markCtx.clearRect(0, 0, markCanvas.width, markCanvas.height);
   markCtx.save();
   markCtx.rotate((-25 * Math.PI) / 180);
@@ -375,7 +418,6 @@ async function renderPDFPage(pageNum, docCanvas, markCanvas, docCtx, markCtx, se
   markCtx.restore();
 }
 
-// Mobile Two-Finger Pinch-to-Zoom Gesture Support
 function initPinchToZoom() {
   const container = document.getElementById("canvasViewport");
   if (!container) return;
@@ -425,7 +467,7 @@ function initPinchToZoom() {
   });
 }
 
-// 9. Breakout Arcade
+// 10. Breakout Arcade
 function initBreakout() {
   const canvas = document.getElementById("breakoutCanvas");
   if (!canvas) return;
@@ -585,7 +627,7 @@ function initBreakout() {
   gameLoop();
 }
 
-// 10. ShreyanCat Interactive Assistant Widget
+// 11. ShreyanCat Interactive Assistant Widget
 function initShreyanCatBot() {
   const botHost = document.createElement("div");
   botHost.id = "shreyanCatWidget";
@@ -686,7 +728,7 @@ function initShreyanCatBot() {
   });
 }
 
-// 11. Security Protection
+// 12. Security Protection
 function initSecurity() {
   document.addEventListener("contextmenu", e => e.preventDefault());
   document.addEventListener("keydown", e => {
@@ -704,7 +746,7 @@ function initSecurity() {
   });
 }
 
-// 12. Main Bootstrapper
+// 13. Main Bootstrapper
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   initSecurity();
@@ -721,7 +763,6 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => switchTab(btn.getAttribute("data-tab")));
   });
 
-  // Zoom Controls: Allows zooming from 100% up to 300% (3.0x)
   const zoomIn = document.getElementById("zoomInBtn");
   const zoomOut = document.getElementById("zoomOutBtn");
   if (zoomIn) {
