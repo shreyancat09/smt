@@ -34,6 +34,5 @@
   "aleeza": { "name": "Aleeza", "pin": "7163", "feesPaid": true, "pendingMonths": "" },
   "abhiraj": { "name": "Abhiraj", "pin": "3825", "feesPaid": true, "pendingMonths": "" },
   "ayan": { "name": "Ayan", "pin": "8492", "feesPaid": true, "pendingMonths": "" },
-  "adhiraj": { "name": "Adhiraj", "pin": "1736", "feesPaid": true, "pendingMonths": "" },
-  "admin": { "name": "Instructor", "pin": "9988", "feesPaid": true, "pendingMonths": "" }
+  "adhiraj": { "name": "Adhiraj", "pin": "1736", "feesPaid": true, "pendingMonths": "" }
 }
