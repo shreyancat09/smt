@@ -30,8 +30,8 @@
 
       <form id="loginForm" autocomplete="off">
         <div class="form-group">
-          <label for="studentName">Student Name</label>
-          <input type="text" id="studentName" placeholder="Enter your registered name" required spellcheck="false">
+          <label for="studentName">Student / Admin Name</label>
+          <input type="text" id="studentName" placeholder="Enter your name" required spellcheck="false">
         </div>
 
         <div class="form-group">
@@ -65,6 +65,8 @@
           <button class="nav-tab-btn" data-tab="tab-discussion">Discussion Lounge</button>
           <button class="nav-tab-btn" data-tab="tab-arcade">Arcade Zone</button>
           <button class="nav-tab-btn" data-tab="tab-contact">Contact</button>
+          <!-- Faculty Desk Tab (Visible ONLY to Admin) -->
+          <button class="nav-tab-btn" id="adminNavTab" data-tab="tab-admin" style="display: none; background: rgba(37, 99, 235, 0.15); color: var(--primary); font-weight: 700;">⚙️ Faculty Desk</button>
         </nav>
 
         <div class="user-control">
@@ -108,7 +110,7 @@
             <article class="card highlight-card">
               <div class="card-tag">Assessment</div>
               <h3>Weekly Sample Paper</h3>
-              <p>Protected read-only question paper viewer withstudent copy.</p>
+              <p>Protected read-only question paper viewer with watermarked student copy.</p>
               <button class="btn btn-primary" onclick="switchTab('tab-paper')">Open Paper Viewer &rarr;</button>
             </article>
 
@@ -132,7 +134,6 @@
               <div class="card-tag">Announcements</div>
               <h3>Class Notice Board</h3>
               <ul class="notice-list">
-                 <li><strong>Noticee</strong>Nothing such for now,Chill Dude :) </li>
               </ul>
             </section>
 
@@ -280,10 +281,14 @@
                 <span class="channel-label">Academic Head:</span>
                 <span class="channel-value">Swati Bhattacharyya</span>
               </div>
+              <div class="channel-item">
+                <span class="channel-label">Evaluation Schedule:</span>
+                <span class="channel-value">Every alternate Sunday</span>
+              </div>
             </div>
             <div class="whatsapp-box">
               <p>Need guidance or intimation regarding batch timings?</p>
-              <a href="https://wa.me/918910337293?text=Hello%20Maam,%20inquiring%20about%20the%20batch..." target="_blank" class="btn btn-whatsapp">
+              <a href="https://wa.me/91XXXXXXXXXX?text=Hello%20Maam,%20inquiring%20about%20the%20batch..." target="_blank" class="btn btn-whatsapp">
                 💬 Message on WhatsApp
               </a>
             </div>
@@ -296,6 +301,59 @@
               <li><strong>Assessments:</strong> Missing a scheduled evaluation requires prior guardian notice.</li>
               <li><strong>Confidentiality:</strong> Do not distribute portal evaluation materials.</li>
             </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 6: FACULTY DESK (ADMIN ONLY) ================= -->
+      <section id="tab-admin" class="tab-content">
+        <div class="welcome-card" style="border-left: 4px solid var(--primary);">
+          <div>
+            <h2>Faculty Administration Desk</h2>
+            <p>Welcome Swati Ma'am! Overview of student credentials, fee statuses, and upload guides.</p>
+          </div>
+          <div class="date-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">Instructor Access</div>
+        </div>
+
+        <!-- Quick Management Guides for GitHub Mobile -->
+        <div class="portal-grid" style="margin-bottom: 2rem;">
+          <article class="card">
+            <div class="card-tag">Action Guide</div>
+            <h3>Lock / Unlock Student Fees</h3>
+            <p>Open <strong>papers/roster.json</strong> in GitHub Mobile &rarr; tap the <strong>Pencil</strong> icon &rarr; change <code>"feesPaid": true</code> to <code>false</code> &rarr; tap <strong>Commit</strong>. Locks take effect instantly across all devices.</p>
+          </article>
+
+          <article class="card">
+            <div class="card-tag secondary">Action Guide</div>
+            <h3>Upload New Sample Paper</h3>
+            <p>In GitHub Mobile, tap the <strong>papers</strong> folder &rarr; tap <strong>+ (Add file)</strong> &rarr; upload your PDF. Then edit <strong>papers/papers.json</strong> to add the paper's title.</p>
+          </article>
+        </div>
+
+        <!-- Student Roster Table -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3>Registered Student Directory (35 Students)</h3>
+              <small style="color: var(--text-muted);">Live directory pulled from papers/roster.json</small>
+            </div>
+            <button class="btn btn-outline-sm" onclick="renderAdminRoster()">🔄 Refresh Roster</button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="academic-table">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Login PIN</th>
+                  <th>Portal Status</th>
+                  <th>Pending Dues</th>
+                </tr>
+              </thead>
+              <tbody id="adminRosterTbody">
+                <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Loading student roster...</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
