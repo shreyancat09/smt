@@ -2,14 +2,20 @@
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SMT Study Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Classroom Study Portal</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 
-  <!-- Background Cat Paw Particle Layer (Desktop Only) -->
+  <!-- Background Cat Paw Particle Canvas (Desktop Only) -->
   <div id="pawTrailContainer" class="paw-trail-layer"></div>
 
   <!-- ==================== 1. LOGIN SCREEN ==================== -->
@@ -76,16 +82,15 @@
       <!-- ================= TAB 1: HOME ================= -->
       <section id="tab-home" class="tab-content active">
         
-        <!-- Fee Lock Screen (Shown only when locked by admin) -->
+        <!-- Fee Lock Screen (Shown only when locked globally) -->
         <div id="feeLockScreen" class="fee-lock-card" style="display: none;">
           <div class="lock-shield-icon">🛡️</div>
           <h2>Portal Access On Hold</h2>
           <p id="feeLockMessage">
-            Tuition fees for recent months are pending. Please clear dues with Swati Ma'am to regain portal access.
+            Tuition fees for recent months are pending. Please clear dues with Ma'am to regain portal and sample papers access.
           </p>
           <div class="fee-lock-actions">
-            <a href="https://wa.me/918910337293?text=Hello%20Maam,%20I%20am%20inquiring%20about%20my%20tuition%20fees." 
-               target="_blank" class="btn btn-whatsapp">
+            <a id="feeWhatsAppBtn" href="#" target="_blank" class="btn btn-whatsapp">
               💬 Message Swati Ma'am on WhatsApp
             </a>
           </div>
@@ -112,7 +117,7 @@
             <article class="card">
               <div class="card-tag secondary">Student Forum</div>
               <h3>Peer Discussion Lounge</h3>
-              <p>Post doubt queries, compare answers, and discuss study topics with BONDHU(S).</p>
+              <p>Post doubt queries, compare answers, and discuss study topics with batchmates.</p>
               <button class="btn btn-secondary" onclick="switchTab('tab-discussion')">Join Discussion &rarr;</button>
             </article>
 
@@ -124,32 +129,29 @@
             </article>
           </section>
 
-          <!-- Announcements & Notes Grid -->
           <div class="home-bottom-grid">
-            
             <section class="card notice-card">
               <div class="card-tag">Announcements</div>
               <h3>Class Notice Board</h3>
               <ul class="notice-list">
-                <li><strong>Noticee</strong>Nothing such for now,Chill Dude :) </li> 
+                <li><strong>Noticee</strong>Nothing such for now,Chill Dude :) </li>
               </ul>
             </section>
 
+            <!-- Send Note Directly to Swati Ma'am's WhatsApp -->
             <section class="card feedback-card">
               <div class="card-tag">Direct Desk</div>
               <h3>Send a Note to Swati Ma'am</h3>
               <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                Have a doubt, homework question, or absence notice? Submit it here for the instructor to review.
+                Have a doubt, homework query, or absence notice? Submit it here to open directly in WhatsApp with your details.
               </p>
               <form id="feedbackForm">
                 <textarea id="feedbackText" rows="3" placeholder="Type your note or doubt here..." required></textarea>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
-                  <span id="feedbackNotice" style="font-size: 0.82rem; color: var(--accent-emerald); display: none;">Note sent to MA'AM!</span>
-                  <button type="submit" class="btn btn-primary btn-sm">Send Note &rarr;</button>
+                <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
+                  <button type="submit" class="btn btn-whatsapp btn-sm">💬 Send to WhatsApp &rarr;</button>
                 </div>
               </form>
             </section>
-
           </div>
         </div>
       </section>
@@ -162,7 +164,6 @@
             <p class="subtext">Read-only academic assessment copy. Screen capture &amp; printing restricted.</p>
           </div>
 
-          <!-- Paper Archive Selector -->
           <div class="paper-selector-wrap">
             <label for="paperSelect"><strong>Choose Paper:</strong></label>
             <select id="paperSelect" class="form-select" style="min-width: 240px;">
@@ -206,7 +207,7 @@
       <section id="tab-discussion" class="tab-content">
         <div class="page-header">
           <h2>Student Discussion Lounge</h2>
-          <p>Collaborate, clear doubts, and discuss weekly assignments with your BONDHU(S).</p>
+          <p>Collaborate, clear doubts, and discuss weekly assignments with your batchmates.</p>
         </div>
 
         <div class="discussion-container">
@@ -257,7 +258,7 @@
                 <p id="overlaySub">Bounce the ball, break all bricks, and catch wide-paddles and multi-balls!</p>
                 <div class="controls-guide">
                   <span>🖥️ <strong>Controls:</strong> Mouse or Left / Right Arrow Keys</span><br>
-                  <span>📱 <strong>Mobile:</strong> Drag finger across the screen</span>
+                  <span>📱 <strong>Mobile:</strong> Swipe / Drag finger across the screen</span>
                 </div>
                 <button id="overlayActionBtn" class="btn btn-primary">Start Game &rarr;</button>
               </div>
