@@ -2,10 +2,9 @@
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Classroom Study Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>Tuition Study Portal</title>
   
-  <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2563eb">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,7 +14,7 @@
 </head>
 <body>
 
-  <!-- Background Cat Paw Particle Canvas (Desktop Only) -->
+  <!-- Desktop Mouse Paw Trail Layer -->
   <div id="pawTrailContainer" class="paw-trail-layer"></div>
 
   <!-- ==================== 1. LOGIN SCREEN ==================== -->
@@ -53,7 +52,6 @@
   <!-- ==================== 2. MAIN APP PORTAL ==================== -->
   <div id="portalScreen" style="display: none;">
     
-    <!-- Top Navigation Bar -->
     <header class="top-nav">
       <div class="nav-container">
         <div class="brand">
@@ -82,12 +80,12 @@
       <!-- ================= TAB 1: HOME ================= -->
       <section id="tab-home" class="tab-content active">
         
-        <!-- Fee Lock Screen (Shown only when locked globally) -->
+        <!-- Fee Lock Screen -->
         <div id="feeLockScreen" class="fee-lock-card" style="display: none;">
           <div class="lock-shield-icon">🛡️</div>
           <h2>Portal Access On Hold</h2>
           <p id="feeLockMessage">
-            Tuition fees for recent months are pending. Please clear dues with Ma'am to regain portal and sample papers access.
+            Tuition fees for recent months are pending. Please clear dues with Swati Ma'am to regain portal access.
           </p>
           <div class="fee-lock-actions">
             <a id="feeWhatsAppBtn" href="#" target="_blank" class="btn btn-whatsapp">
@@ -101,7 +99,7 @@
           <section class="welcome-card">
             <div>
               <h2 id="welcomeGreeting">Welcome back!</h2>
-              <p>Review this week's active evaluation papers, notice updates, and discussions.</p>
+              <p>Review active evaluation papers, notice updates, and batch discussions.</p>
             </div>
             <div class="date-badge">Academic Session 2026–27</div>
           </section>
@@ -110,7 +108,7 @@
             <article class="card highlight-card">
               <div class="card-tag">Assessment</div>
               <h3>Weekly Sample Paper</h3>
-              <p>Protected read-only question paper viewer with student copy.</p>
+              <p>Protected read-only question paper viewer withstudent copy.</p>
               <button class="btn btn-primary" onclick="switchTab('tab-paper')">Open Paper Viewer &rarr;</button>
             </article>
 
@@ -134,21 +132,20 @@
               <div class="card-tag">Announcements</div>
               <h3>Class Notice Board</h3>
               <ul class="notice-list">
-                <li><strong>Noticee</strong>Nothing such for now,Chill Dude :) </li>
+                 <li><strong>Noticee</strong>Nothing such for now,Chill Dude :) </li>
               </ul>
             </section>
 
-            <!-- Send Note Directly to Swati Ma'am's WhatsApp -->
             <section class="card feedback-card">
               <div class="card-tag">Direct Desk</div>
               <h3>Send a Note to Swati Ma'am</h3>
               <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                Have a doubt, homework query, or absence notice? Submit it here to open directly in WhatsApp with your details.
+                Have a doubt, homework query, or absence notice? Submit it here to open WhatsApp directly with your message.
               </p>
               <form id="feedbackForm">
                 <textarea id="feedbackText" rows="3" placeholder="Type your note or doubt here..." required></textarea>
                 <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
-                  <button type="submit" class="btn btn-whatsapp btn-sm">💬 Send to WhatsApp &rarr;</button>
+                  <button type="submit" class="btn btn-whatsapp btn-sm">💬 Send via WhatsApp &rarr;</button>
                 </div>
               </form>
             </section>
@@ -258,7 +255,7 @@
                 <p id="overlaySub">Bounce the ball, break all bricks, and catch wide-paddles and multi-balls!</p>
                 <div class="controls-guide">
                   <span>🖥️ <strong>Controls:</strong> Mouse or Left / Right Arrow Keys</span><br>
-                  <span>📱 <strong>Mobile:</strong> Swipe / Drag finger across the screen</span>
+                  <span>📱 <strong>Mobile:</strong> Drag finger across the paddle</span>
                 </div>
                 <button id="overlayActionBtn" class="btn btn-primary">Start Game &rarr;</button>
               </div>
