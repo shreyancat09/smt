@@ -1,9 +1,12 @@
 /* ==========================================================================
    TUITION STUDY PORTAL - MASTER ENGINE
+   Includes: Auth (36 Students), Tabs, ShreyanCat Bot, Desktop Paw Trail,
+             Discussions, Doubt Submissions, Breakout Game, Canvas PDF Viewer
    ========================================================================== */
 
-// 1. Master Roster: All 35 Students UNLOCKED by default
+// 1. Master Roster (36 Students - All Unlocked by default)
 const DEFAULT_STUDENTS = {
+  "shreyan": { name: "Shreyan", pin: "5542", feesPaid: true, pendingMonths: "" },
   "abir": { name: "Abir", pin: "4821", feesPaid: true, pendingMonths: "" },
   "adrita": { name: "Adrita", pin: "7394", feesPaid: true, pendingMonths: "" },
   "anushtup": { name: "Anushtup", pin: "1658", feesPaid: true, pendingMonths: "" },
@@ -43,25 +46,24 @@ const DEFAULT_STUDENTS = {
 };
 
 function getRoster() {
-  const saved = localStorage.getItem("tuition_roster_v3");
+  const saved = localStorage.getItem("tuition_roster_v4");
   if (!saved) {
-    localStorage.setItem("tuition_roster_v3", JSON.stringify(DEFAULT_STUDENTS));
+    localStorage.setItem("tuition_roster_v4", JSON.stringify(DEFAULT_STUDENTS));
     return DEFAULT_STUDENTS;
   }
   return JSON.parse(saved);
 }
 
 function getSession() {
-  const s = localStorage.getItem("tuition_session_v3");
+  const s = localStorage.getItem("tuition_session_v4");
   return s ? JSON.parse(s) : null;
 }
 
-// 2. Tab Navigation Switcher (Zero 404s)
+// 2. Tab Navigation Switcher (Instant & Zero 404s)
 function switchTab(tabId) {
   const session = getSession();
-  // If student is fee-locked, keep them on Home lock view
   if (session && !session.feesPaid && tabId !== "tab-home" && tabId !== "tab-contact") {
-    alert("Access paused. Please clear batch dues to view this section.");
+    alert("Portal access is paused. Please clear dues with Swati Ma'am.");
     return;
   }
 
@@ -73,13 +75,11 @@ function switchTab(tabId) {
   if (targetTab) targetTab.classList.add("active");
   if (targetBtn) targetBtn.classList.add("active");
 
-  // Load PDF when switching to paper viewer tab
-  if (tabId === "tab-paper") {
-    initPDFViewer();
-  }
+  if (tabId === "tab-paper") initPDFViewer();
+  if (tabId === "tab-discussion") renderDiscussions();
 }
 
-// 3. Dark Theme Management
+// 3. Theme Management
 function initTheme() {
   const t = localStorage.getItem("tuition_theme") || "light";
   document.documentElement.setAttribute("data-theme", t);
@@ -111,12 +111,10 @@ function checkAuthAndRender() {
   loginScreen.style.display = "none";
   portalScreen.style.display = "block";
 
-  // Update user tags
   document.querySelectorAll("#studentDisplay, #securityStudentTag").forEach(el => el.textContent = session.name);
   const greet = document.getElementById("welcomeGreeting");
   if (greet) greet.textContent = `Welcome back, ${session.name}!`;
 
-  // Apply Fee Lock if student is marked unpaid
   const homeUnlocked = document.getElementById("homeUnlockedView");
   const feeCard = document.getElementById("feeLockScreen");
   const feeMsg = document.getElementById("feeLockMessage");
@@ -128,20 +126,194 @@ function checkAuthAndRender() {
     if (homeUnlocked) homeUnlocked.style.display = "none";
     if (feeCard) feeCard.style.display = "block";
     if (feeMsg) {
-      feeMsg.innerHTML = `Hello <strong>${session.name}</strong>, your evaluation portal is temporarily on hold because fees for <strong>${session.pendingMonths || "recent months"}</strong> are pending.<br><br>Please clear dues with Swati Ma'am to unlock.`;
+      feeMsg.innerHTML = `Hello <strong>${session.name}</strong>, your evaluation portal is temporarily on hold because batch fees for <strong>${session.pendingMonths || "recent months"}</strong> are pending.<br><br>Please clear dues with Swati Ma'am to unlock.`;
     }
   }
 }
 
-// 5. Anti-Download & Dynamic Watermark Canvas PDF Viewer
+// 5. Desktop-Only Cat Paw Trail Effect
+function initPawTrail() {
+  if (window.matchMedia("(pointer: fine)").matches && window.innerWidth > 768) {
+    let lastTime = 0;
+    document.addEventListener("mousemove", (e) => {
+      const now = Date.now();
+      if (now - lastTime < 75) return;
+      lastTime = now;
+
+      const paw = document.createElement("span");
+      paw.className = "floating-paw";
+      paw.textContent = "🐾";
+      
+      const rot = (Math.random() * 40 - 20);
+      paw.style.left = `${e.clientX}px`;
+      paw.style.top = `${e.clientY}px`;
+      paw.style.transform = `translate(-50%, -50%) rotate(${rot}deg) scale(${0.7 + Math.random() * 0.4})`;
+
+      document.body.appendChild(paw);
+      setTimeout(() => paw.remove(), 900);
+    });
+  }
+}
+
+// 6. Discussion Lounge
+const INITIAL_DISCUSSIONS = [
+  {
+    id: "d1",
+    author: "Shreyan",
+    time: "Today at 4:15 PM",
+    topic: "Tips for Class 10 History Timeline Questions",
+    content: "Remember that the Rowlatt Act is 1919 and Non-Cooperation was launched in 1920. Don't mix up the dates in Section A!",
+    replies: [
+      { author: "Adrita", text: "Thanks! Also Chauri Chaura incident occurred in Feb 1922 which ended it." }
+    ]
+  },
+  {
+    id: "d2",
+    author: "Progyan",
+    time: "Yesterday at 6:30 PM",
+    topic: "Map Practice for Sunday Assessment",
+    content: "Are we being tested on major iron ore belts or dams this weekend?",
+    replies: [
+      { author: "Ayushman", text: "Ma'am mentioned dams and major soil types will be on the 5-mark map section." }
+    ]
+  }
+];
+
+function getDiscussions() {
+  const d = localStorage.getItem("tuition_discussions");
+  if (!d) {
+    localStorage.setItem("tuition_discussions", JSON.stringify(INITIAL_DISCUSSIONS));
+    return INITIAL_DISCUSSIONS;
+  }
+  return JSON.parse(d);
+}
+
+function renderDiscussions() {
+  const container = document.getElementById("discussionFeed");
+  if (!container) return;
+  const list = getDiscussions();
+
+  container.innerHTML = "";
+  list.forEach(item => {
+    const card = document.createElement("article");
+    card.className = "card discussion-item-card";
+
+    let replyHtml = item.replies.map(r => `
+      <div class="discussion-reply">
+        <strong>${r.author}:</strong> ${r.text}
+      </div>
+    `).join("");
+
+    card.innerHTML = `
+      <div class="discussion-meta">
+        <span class="author-badge">🐱 ${item.author}</span>
+        <span class="time-badge">${item.time}</span>
+      </div>
+      <h3 class="discussion-title">${item.topic}</h3>
+      <p class="discussion-text">${item.content}</p>
+      
+      <div class="replies-wrapper">
+        ${replyHtml}
+      </div>
+
+      <form class="reply-form" data-id="${item.id}">
+        <input type="text" placeholder="Write a reply..." required>
+        <button type="submit" class="btn btn-outline-sm">Reply</button>
+      </form>
+    `;
+
+    container.appendChild(card);
+  });
+
+  document.querySelectorAll(".reply-form").forEach(f => {
+    f.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const id = f.getAttribute("data-id");
+      const input = f.querySelector("input");
+      const replyText = input.value.trim();
+      const session = getSession();
+      if (!replyText || !session) return;
+
+      const discussions = getDiscussions();
+      const target = discussions.find(d => d.id === id);
+      if (target) {
+        target.replies.push({ author: session.name, text: replyText });
+        localStorage.setItem("tuition_discussions", JSON.stringify(discussions));
+        renderDiscussions();
+      }
+    });
+  });
+}
+
+// 7. Student Notes/Doubt Submission Box
+function initFeedback() {
+  const form = document.getElementById("feedbackForm");
+  const notice = document.getElementById("feedbackNotice");
+  if (!form) return;
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = document.getElementById("feedbackText").value.trim();
+    const session = getSession();
+    if (!text || !session) return;
+
+    const feedbacks = JSON.parse(localStorage.getItem("tuition_feedbacks") || "[]");
+    feedbacks.unshift({
+      name: session.name,
+      time: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+      text: text
+    });
+    localStorage.setItem("tuition_feedbacks", JSON.stringify(feedbacks));
+
+    form.reset();
+    notice.style.display = "inline";
+    setTimeout(() => { notice.style.display = "none"; }, 3500);
+  });
+}
+
+// 8. PDF.js Viewer with Multi-Paper Selection & Strict Privacy Watermark
 let pdfDoc = null;
 let currentPage = 1;
 let zoom = 1.0;
+let currentPaperPath = "";
 
 async function initPDFViewer() {
   if (typeof pdfjsLib === "undefined") return;
   pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
+  const selector = document.getElementById("paperSelect");
+  if (!selector) return;
+
+  try {
+    const res = await fetch(`./papers/papers.json?t=${Date.now()}`);
+    if (res.ok) {
+      const papers = await res.json();
+      selector.innerHTML = "";
+      papers.forEach((p) => {
+        const opt = document.createElement("option");
+        opt.value = p.file;
+        opt.textContent = p.title;
+        selector.appendChild(opt);
+      });
+      if (papers.length > 0) {
+        currentPaperPath = papers[0].file;
+        loadSelectedPDF(currentPaperPath);
+      }
+    } else {
+      loadSelectedPDF("./papers/weekly.pdf");
+    }
+  } catch (e) {
+    loadSelectedPDF("./papers/weekly.pdf");
+  }
+
+  selector.onchange = () => {
+    currentPaperPath = selector.value;
+    currentPage = 1;
+    loadSelectedPDF(currentPaperPath);
+  };
+}
+
+async function loadSelectedPDF(filePath) {
   const docCanvas = document.getElementById("documentCanvas");
   const markCanvas = document.getElementById("watermarkCanvas");
   if (!docCanvas || !markCanvas) return;
@@ -151,12 +323,12 @@ async function initPDFViewer() {
   const session = getSession() || { name: "Student" };
 
   try {
-    const pdfPath = `./papers/weekly.pdf?t=${Date.now()}`;
-    const loadingTask = pdfjsLib.getDocument(pdfPath);
+    const loadingTask = pdfjsLib.getDocument(`${filePath}?t=${Date.now()}`);
     pdfDoc = await loadingTask.promise;
     document.getElementById("totalPagesNum").textContent = pdfDoc.numPages;
+    document.getElementById("currentPageNum").textContent = currentPage;
     renderPDFPage(currentPage, docCanvas, markCanvas, docCtx, markCtx, session);
-  } catch (e) {
+  } catch (err) {
     docCanvas.width = 600;
     docCanvas.height = 300;
     docCtx.fillStyle = "#ffffff";
@@ -164,7 +336,7 @@ async function initPDFViewer() {
     docCtx.fillStyle = "#64748b";
     docCtx.font = "16px sans-serif";
     docCtx.textAlign = "center";
-    docCtx.fillText("Weekly evaluation paper will be uploaded soon.", 300, 150);
+    docCtx.fillText("Selected test paper will be available shortly.", 300, 150);
   }
 }
 
@@ -188,16 +360,16 @@ async function renderPDFPage(pageNum, docCanvas, markCanvas, docCtx, markCtx, se
   markCtx.fillStyle = "rgba(220, 38, 38, 0.13)";
   markCtx.textAlign = "center";
 
-  const watermarkString = `${session.name.toUpperCase()} • PRIVATE ASSESSMENT • CONFIDENTIAL`;
+  const stamp = `${session.name.toUpperCase()} • PRIVATE ASSESSMENT • CONFIDENTIAL`;
   for (let x = -markCanvas.width; x < markCanvas.width * 2; x += 320) {
     for (let y = -markCanvas.height; y < markCanvas.height * 2; y += 180) {
-      markCtx.fillText(watermarkString, x, y);
+      markCtx.fillText(stamp, x, y);
     }
   }
   markCtx.restore();
 }
 
-// 6. Breakout Arcade
+// 9. Breakout Arcade
 function initBreakout() {
   const canvas = document.getElementById("breakoutCanvas");
   if (!canvas) return;
@@ -252,7 +424,6 @@ function initBreakout() {
       ctx.fillStyle = "#0f172a";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw Bricks
       let active = 0;
       for (let r = 0; r < 5; r++) {
         for (let c = 0; c < 8; c++) {
@@ -265,11 +436,9 @@ function initBreakout() {
         }
       }
 
-      // Draw Paddle
       ctx.fillStyle = "#38bdf8";
       ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
 
-      // Move & Draw Balls
       balls.forEach((b, idx) => {
         b.x += b.dx;
         b.y += b.dy;
@@ -277,12 +446,10 @@ function initBreakout() {
         if (b.x + b.r > canvas.width || b.x - b.r < 0) b.dx = -b.dx;
         if (b.y - b.r < 0) b.dy = -b.dy;
 
-        // Paddle hit
         if (b.y + b.r >= paddle.y && b.x >= paddle.x && b.x <= paddle.x + paddle.w && b.dy > 0) {
           b.dy = -b.dy;
         }
 
-        // Brick hit
         for (let r = 0; r < 5; r++) {
           for (let c = 0; c < 8; c++) {
             const brk = bricks[r][c];
@@ -325,7 +492,7 @@ function initBreakout() {
       if (active === 0) {
         gameState = "WON";
         overlayTitle.textContent = "BOARD CLEARED! 🏆";
-        overlaySub.textContent = `Excellent reflexes! Final Score: ${score} pts.`;
+        overlaySub.textContent = `High score reflexes! Final Score: ${score} pts.`;
         overlay.style.display = "flex";
       }
     }
@@ -348,7 +515,7 @@ function initBreakout() {
     if (gameState === "PLAYING") {
       gameState = "PAUSED";
       overlayTitle.textContent = "PAUSED";
-      overlaySub.textContent = "Game paused. Tap resume to jump back in.";
+      overlaySub.textContent = "Game paused. Tap resume when ready.";
       overlayBtn.textContent = "Resume";
       overlay.style.display = "flex";
     }
@@ -362,7 +529,108 @@ function initBreakout() {
   gameLoop();
 }
 
-// 7. Security Blurring & Shortcuts Blocker
+// 10. ShreyanCat Interactive Assistant Widget
+function initShreyanCatBot() {
+  const botHost = document.createElement("div");
+  botHost.id = "shreyanCatWidget";
+  botHost.innerHTML = `
+    <div id="catBubbleBtn" class="cat-floating-bubble" title="Talk to ShreyanCat!">
+      <span class="cat-face-icon">🐱</span>
+      <span class="cat-active-beacon"></span>
+    </div>
+
+    <div id="catChatWindow" class="cat-chat-window" style="display: none;">
+      <div class="cat-chat-header">
+        <div class="cat-brand-wrap">
+          <span>🐾</span>
+          <div>
+            <strong>ShreyanCat</strong>
+            <small>Classroom AI Companion</small>
+          </div>
+        </div>
+        <button id="catCloseBtn" class="cat-close-btn">&times;</button>
+      </div>
+
+      <div class="cat-chat-body" id="catChatBody">
+        <div class="cat-msg bot">
+          Purr! 🐾 I am <strong>ShreyanCat</strong>! How can I help with your study routine or tuition batches today?
+        </div>
+      </div>
+
+      <div class="cat-chips-bar">
+        <button class="chip-item" data-q="batch">Class Timings</button>
+        <button class="chip-item" data-q="paper">Weekly Test</button>
+        <button class="chip-item" data-q="joke">Cat Joke</button>
+        <button class="chip-item" data-q="fees">Fees Info</button>
+      </div>
+
+      <form id="catChatForm" class="cat-input-bar">
+        <input type="text" id="catInput" placeholder="Ask ShreyanCat a question..." autocomplete="off">
+        <button type="submit" class="cat-send-btn">&rarr;</button>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(botHost);
+
+  const bubble = document.getElementById("catBubbleBtn");
+  const win = document.getElementById("catChatWindow");
+  const close = document.getElementById("catCloseBtn");
+  const form = document.getElementById("catChatForm");
+  const input = document.getElementById("catInput");
+  const chatBody = document.getElementById("catChatBody");
+
+  bubble.addEventListener("click", () => {
+    win.style.display = win.style.display === "none" ? "flex" : "none";
+  });
+  close.addEventListener("click", () => { win.style.display = "none"; });
+
+  function addMsg(sender, text) {
+    const m = document.createElement("div");
+    m.className = `cat-msg ${sender}`;
+    m.innerHTML = text;
+    chatBody.appendChild(m);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  function getReply(q) {
+    const s = q.toLowerCase();
+    if (s.includes("batch") || s.includes("time") || s.includes("timing") || s.includes("schedule")) {
+      return "Class batches meet Tuesday & Friday (5:00 PM) or Wednesday & Saturday (5:30 PM). Sunday is test & doubt clearing at 9:00 AM! 🐾";
+    }
+    if (s.includes("paper") || s.includes("test") || s.includes("exam") || s.includes("omr")) {
+      return "Weekly mock papers are uploaded into the <strong>Sample Paper</strong> tab! Check questions on-screen and bring your blank 50-mark OMR sheets on Sunday.";
+    }
+    if (s.includes("joke") || s.includes("funny") || s.includes("laugh")) {
+      return "Why was the cat sitting on the computer? Because it wanted to keep an eye on the mouse! 🐭😹";
+    }
+    if (s.includes("fee") || s.includes("due") || s.includes("lock") || s.includes("pay")) {
+      return "If your assessment tab is locked, have your parents drop a quick WhatsApp message to Swati Ma'am to clear dues! 💬";
+    }
+    if (s.includes("who made") || s.includes("developer") || s.includes("creator") || s.includes("cat")) {
+      return "I was built exclusively for this tuition desk by <strong>ShreyanCat</strong>! 🐾⚡";
+    }
+    return "Meow! Got it. Check the Notice Board on your dashboard or ask Swati Ma'am during batch hours for more details! 🐾";
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const val = input.value.trim();
+    if (!val) return;
+    addMsg("user", val);
+    input.value = "";
+    setTimeout(() => addMsg("bot", getReply(val)), 350);
+  });
+
+  document.querySelectorAll(".chip-item").forEach(c => {
+    c.addEventListener("click", () => {
+      const q = c.getAttribute("data-q");
+      addMsg("user", c.textContent);
+      setTimeout(() => addMsg("bot", getReply(q)), 300);
+    });
+  });
+}
+
+// 11. Security Protection
 function initSecurity() {
   document.addEventListener("contextmenu", e => e.preventDefault());
   document.addEventListener("keydown", e => {
@@ -380,34 +648,58 @@ function initSecurity() {
   });
 }
 
-// 8. Event Initialization
+// 12. Main Bootstrapper
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   initSecurity();
+  initPawTrail();
   checkAuthAndRender();
   initBreakout();
+  initFeedback();
+  initShreyanCatBot();
 
   const themeBtn = document.getElementById("themeToggleBtn");
   if (themeBtn) themeBtn.addEventListener("click", toggleTheme);
 
-  // Nav Tab clicks
   document.querySelectorAll(".nav-tab-btn").forEach(btn => {
     btn.addEventListener("click", () => switchTab(btn.getAttribute("data-tab")));
   });
 
-  // Zoom buttons
   const zoomIn = document.getElementById("zoomInBtn");
   const zoomOut = document.getElementById("zoomOutBtn");
   if (zoomIn) zoomIn.addEventListener("click", () => { if (zoom < 1.4) { zoom += 0.1; document.getElementById("zoomLevel").textContent = `${Math.round(zoom * 100)}%`; initPDFViewer(); } });
   if (zoomOut) zoomOut.addEventListener("click", () => { if (zoom > 0.8) { zoom -= 0.1; document.getElementById("zoomLevel").textContent = `${Math.round(zoom * 100)}%`; initPDFViewer(); } });
 
-  // Page Switchers
   const prevBtn = document.getElementById("prevPageBtn");
   const nextBtn = document.getElementById("nextPageBtn");
   if (prevBtn) prevBtn.addEventListener("click", () => { if (currentPage > 1) { currentPage--; document.getElementById("currentPageNum").textContent = currentPage; initPDFViewer(); } });
   if (nextBtn) nextBtn.addEventListener("click", () => { if (pdfDoc && currentPage < pdfDoc.numPages) { currentPage++; document.getElementById("currentPageNum").textContent = currentPage; initPDFViewer(); } });
 
-  // Login Form
+  const discForm = document.getElementById("discussionForm");
+  if (discForm) {
+    discForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const topic = document.getElementById("discussionTopic").value.trim();
+      const content = document.getElementById("discussionContent").value.trim();
+      const session = getSession();
+      if (!topic || !content || !session) return;
+
+      const discussions = getDiscussions();
+      discussions.unshift({
+        id: "d_" + Date.now(),
+        author: session.name,
+        time: "Just now",
+        topic: topic,
+        content: content,
+        replies: []
+      });
+
+      localStorage.setItem("tuition_discussions", JSON.stringify(discussions));
+      discForm.reset();
+      renderDiscussions();
+    });
+  }
+
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", (e) => {
@@ -420,16 +712,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const student = roster[name];
 
       if (student && student.pin === pass) {
-        // Record login access log
-        const logs = JSON.parse(localStorage.getItem("tuition_access_logs_v3") || "[]");
+        const logs = JSON.parse(localStorage.getItem("tuition_access_logs_v4") || "[]");
         logs.unshift({
           name: student.name,
           time: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
         });
         if (logs.length > 25) logs.pop();
-        localStorage.setItem("tuition_access_logs_v3", JSON.stringify(logs));
+        localStorage.setItem("tuition_access_logs_v4", JSON.stringify(logs));
 
-        localStorage.setItem("tuition_session_v3", JSON.stringify({
+        localStorage.setItem("tuition_session_v4", JSON.stringify({
           id: name,
           name: student.name,
           feesPaid: student.feesPaid,
@@ -448,11 +739,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Logout
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("tuition_session_v3");
+      localStorage.removeItem("tuition_session_v4");
       checkAuthAndRender();
     });
   }
