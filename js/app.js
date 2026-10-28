@@ -1,58 +1,18 @@
 /* ==========================================================================
-   TUITION STUDY PORTAL - MASTER ENGINE
+   TUITION STUDY PORTAL - ZERO-TOKEN MASTER ENGINE
    Features:
-   - Global GitHub Fee Sync from papers/roster.json
-   - High-DPI Retina Canvas Sharpening (devicePixelRatio)
-   - Anti-Pull-To-Refresh Breakout Arcade
-   - WhatsApp-Direct Student Doubts
-   - ShreyanCat Assistant & Desktop Paw Trail
+   - High-DPI Canvas Rendering with Dynamic Width Scaling (No 100% Clamp)
+   - Smooth Mobile Pinch-to-Zoom & Horizontal/Vertical Swiping
+   - Zoom range from 100% up to 300% for easy mobile reading
+   - Pure WhatsApp doubt submission (no servers needed)
+   - Mobile anti-pull-to-refresh Breakout Arcade
+   - ShreyanCat Companion & Desktop Paw Trail
    ========================================================================== */
 
 // Configure Instructor WhatsApp Phone Number (with Country Code, no '+' or spaces)
-const SWATI_MAAM_PHONE = "918910337293";
+const SWATI_MAAM_PHONE = "91XXXXXXXXXX";
 
-// Fallback student roster
-const DEFAULT_FALLBACK_ROSTER = {
-  "shreyan": { name: "Shreyan", pin: "5542", feesPaid: true, pendingMonths: "" },
-  "abir": { name: "Abir", pin: "4821", feesPaid: true, pendingMonths: "" },
-  "adrita": { name: "Adrita", pin: "7394", feesPaid: true, pendingMonths: "" },
-  "anushtup": { name: "Anushtup", pin: "1658", feesPaid: true, pendingMonths: "" },
-  "arkadeep": { name: "Arkadeep", pin: "8243", feesPaid: true, pendingMonths: "" },
-  "arpan": { name: "Arpan", pin: "3912", feesPaid: true, pendingMonths: "" },
-  "ayushman": { name: "Ayushman", pin: "6547", feesPaid: true, pendingMonths: "" },
-  "bivabsu": { name: "Bivabsu", pin: "2891", feesPaid: true, pendingMonths: "" },
-  "debadrita": { name: "Debadrita", pin: "5174", feesPaid: true, pendingMonths: "" },
-  "dibya": { name: "Dibya", pin: "9432", feesPaid: true, pendingMonths: "" },
-  "hridisha": { name: "Hridisha", pin: "3765", feesPaid: true, pendingMonths: "" },
-  "kinjal": { name: "Kinjal", pin: "8129", feesPaid: true, pendingMonths: "" },
-  "kaustav": { name: "Kaustav", pin: "6284", feesPaid: true, pendingMonths: "" },
-  "niladri": { name: "Niladri", pin: "1947", feesPaid: true, pendingMonths: "" },
-  "priyankshu": { name: "Priyankshu", pin: "5382", feesPaid: true, pendingMonths: "" },
-  "progyan": { name: "Progyan", pin: "7461", feesPaid: true, pendingMonths: "" },
-  "rahi": { name: "Rahi", pin: "2398", feesPaid: true, pendingMonths: "" },
-  "rajdip": { name: "Rajdip", pin: "8715", feesPaid: true, pendingMonths: "" },
-  "rishita": { name: "Rishita", pin: "4629", feesPaid: true, pendingMonths: "" },
-  "rishav": { name: "Rishav", pin: "9153", feesPaid: true, pendingMonths: "" },
-  "ritam": { name: "Ritam", pin: "3482", feesPaid: true, pendingMonths: "" },
-  "rijoy": { name: "Rijoy", pin: "6721", feesPaid: true, pendingMonths: "" },
-  "sampriti": { name: "Sampriti", pin: "5834", feesPaid: true, pendingMonths: "" },
-  "sampurna": { name: "Sampurna", pin: "1295", feesPaid: true, pendingMonths: "" },
-  "saif": { name: "Saif", pin: "7649", feesPaid: true, pendingMonths: "" },
-  "shahina": { name: "Shahina", pin: "3187", feesPaid: true, pendingMonths: "" },
-  "shruti": { name: "Shruti", pin: "9542", feesPaid: true, pendingMonths: "" },
-  "soumyajyoti": { name: "Soumyajyoti", pin: "4218", feesPaid: true, pendingMonths: "" },
-  "soujanya": { name: "Soujanya", pin: "6831", feesPaid: true, pendingMonths: "" },
-  "sucharita": { name: "Sucharita", pin: "8374", feesPaid: true, pendingMonths: "" },
-  "surjo": { name: "Surjo", pin: "2956", feesPaid: true, pendingMonths: "" },
-  "surottam": { name: "Surottam", pin: "5419", feesPaid: true, pendingMonths: "" },
-  "aleeza": { name: "Aleeza", pin: "7163", feesPaid: true, pendingMonths: "" },
-  "abhiraj": { name: "Abhiraj", pin: "3825", feesPaid: true, pendingMonths: "" },
-  "ayan": { name: "Ayan", pin: "8492", feesPaid: true, pendingMonths: "" },
-  "adhiraj": { name: "Adhiraj", pin: "1736", feesPaid: true, pendingMonths: "" },
-  "admin": { name: "Instructor", pin: "9988", feesPaid: true, pendingMonths: "" }
-};
-
-// 1. Live Global Roster Fetch (Pulls fresh status from GitHub repository)
+// 1. Live Global Roster Fetch (Pulls fresh status from papers/roster.json)
 async function getLiveRoster() {
   try {
     const res = await fetch(`./papers/roster.json?t=${Date.now()}`);
@@ -65,11 +25,11 @@ async function getLiveRoster() {
     // offline or network fallback
   }
   const cached = localStorage.getItem("tuition_roster_cache");
-  return cached ? JSON.parse(cached) : DEFAULT_FALLBACK_ROSTER;
+  return cached ? JSON.parse(cached) : {};
 }
 
 function getSession() {
-  const s = localStorage.getItem("tuition_session_v5");
+  const s = localStorage.getItem("tuition_session_clean");
   return s ? JSON.parse(s) : null;
 }
 
@@ -110,7 +70,7 @@ function toggleTheme() {
   if (btn) btn.textContent = next === "dark" ? "☀️ Light" : "🌙 Dark";
 }
 
-// 4. Session Validation & Fee Lock Renderer (Validates with live roster)
+// 4. Session Validation & Fee Lock Renderer
 async function checkAuthAndRender() {
   const session = getSession();
   const loginScreen = document.getElementById("loginScreen");
@@ -122,13 +82,13 @@ async function checkAuthAndRender() {
     return;
   }
 
-  // Cross-check live fee status from GitHub
+  // Cross-check live fee status from GitHub roster.json
   const roster = await getLiveRoster();
   const liveStudent = roster[session.id];
   if (liveStudent) {
     session.feesPaid = liveStudent.feesPaid;
     session.pendingMonths = liveStudent.pendingMonths;
-    localStorage.setItem("tuition_session_v5", JSON.stringify(session));
+    localStorage.setItem("tuition_session_clean", JSON.stringify(session));
   }
 
   loginScreen.style.display = "none";
@@ -207,9 +167,9 @@ const INITIAL_DISCUSSIONS = [
 ];
 
 function getDiscussions() {
-  const d = localStorage.getItem("tuition_discussions_v5");
+  const d = localStorage.getItem("tuition_discussions_clean");
   if (!d) {
-    localStorage.setItem("tuition_discussions_v5", JSON.stringify(INITIAL_DISCUSSIONS));
+    localStorage.setItem("tuition_discussions_clean", JSON.stringify(INITIAL_DISCUSSIONS));
     return INITIAL_DISCUSSIONS;
   }
   return JSON.parse(d);
@@ -265,7 +225,7 @@ function renderDiscussions() {
       const target = discussions.find(d => d.id === id);
       if (target) {
         target.replies.push({ author: session.name, text: replyText });
-        localStorage.setItem("tuition_discussions_v5", JSON.stringify(discussions));
+        localStorage.setItem("tuition_discussions_clean", JSON.stringify(discussions));
         renderDiscussions();
       }
     });
@@ -283,14 +243,13 @@ function initFeedback() {
     const session = getSession();
     if (!text || !session) return;
 
-    // Direct WhatsApp message pre-fill
     const waUrl = `https://wa.me/${SWATI_MAAM_PHONE}?text=${encodeURIComponent("Student Doubt from " + session.name + ":\n" + text)}`;
     window.open(waUrl, "_blank");
     form.reset();
   });
 }
 
-// 8. PDF.js Viewer with High-DPI Canvas Sharpening & Watermarking
+// 8. PDF.js Viewer with High-DPI Canvas Sharpening, Zoom (up to 300%) & Pinch
 let pdfDoc = null;
 let currentPage = 1;
 let zoom = 1.0;
@@ -330,6 +289,8 @@ async function initPDFViewer() {
     currentPage = 1;
     loadSelectedPDF(currentPaperPath);
   };
+
+  initPinchToZoom();
 }
 
 async function loadSelectedPDF(filePath) {
@@ -350,6 +311,8 @@ async function loadSelectedPDF(filePath) {
   } catch (err) {
     docCanvas.width = 600;
     docCanvas.height = 300;
+    docCanvas.style.width = "100%";
+    docCanvas.style.height = "auto";
     docCtx.fillStyle = "#ffffff";
     docCtx.fillRect(0, 0, 600, 300);
     docCtx.fillStyle = "#64748b";
@@ -362,37 +325,47 @@ async function loadSelectedPDF(filePath) {
 async function renderPDFPage(pageNum, docCanvas, markCanvas, docCtx, markCtx, session) {
   if (!pdfDoc) return;
   const page = await pdfDoc.getPage(pageNum);
+  const viewportContainer = document.getElementById("canvasViewport");
 
-  // High-DPI Retina Display Multiplier
+  // Base mobile width (fits container at 1.0x)
+  const containerWidth = (viewportContainer && viewportContainer.clientWidth) ? (viewportContainer.clientWidth - 16) : 360;
+  
+  // Calculate display width: at zoom 2.0x, displayWidth is 2x screen size so user can pan horizontally
+  const displayWidth = Math.round(containerWidth * zoom);
+  
+  // High-DPI internal buffer multiplier (Retina sharpness)
   const dpr = window.devicePixelRatio || 1;
-  const baseScale = zoom * 1.35;
-  const viewport = page.getViewport({ scale: baseScale * dpr });
+  const unscaledViewport = page.getViewport({ scale: 1.0 });
+  const scaleRatio = (displayWidth / unscaledViewport.width) * dpr;
+  const renderViewport = page.getViewport({ scale: scaleRatio });
 
-  // High resolution hardware buffer
-  docCanvas.width = viewport.width;
-  docCanvas.height = viewport.height;
-  markCanvas.width = viewport.width;
-  markCanvas.height = viewport.height;
+  const displayHeight = Math.round((unscaledViewport.height / unscaledViewport.width) * displayWidth);
 
-  // Responsive CSS viewport display sizing
-  docCanvas.style.width = "100%";
-  docCanvas.style.height = "auto";
-  markCanvas.style.width = "100%";
-  markCanvas.style.height = "auto";
+  // Hardware high-resolution internal pixel buffer
+  docCanvas.width = renderViewport.width;
+  docCanvas.height = renderViewport.height;
+  markCanvas.width = renderViewport.width;
+  markCanvas.height = renderViewport.height;
 
-  await page.render({ canvasContext: docCtx, viewport: viewport }).promise;
+  // Crucial fix: Display CSS size expands with zoom level instead of locking to 100%!
+  docCanvas.style.width = `${displayWidth}px`;
+  docCanvas.style.height = `${displayHeight}px`;
+  markCanvas.style.width = `${displayWidth}px`;
+  markCanvas.style.height = `${displayHeight}px`;
 
-  // Clean dynamic watermark (NO PIN, NO CLASS)
+  await page.render({ canvasContext: docCtx, viewport: renderViewport }).promise;
+
+  // Stamped watermark: ONLY Student Name & Confidentiality (NO PIN, NO CLASS)
   markCtx.clearRect(0, 0, markCanvas.width, markCanvas.height);
   markCtx.save();
   markCtx.rotate((-25 * Math.PI) / 180);
-  markCtx.font = `bold ${22 * dpr}px sans-serif`;
+  markCtx.font = `bold ${24 * dpr}px sans-serif`;
   markCtx.fillStyle = "rgba(220, 38, 38, 0.13)";
   markCtx.textAlign = "center";
 
   const stamp = `${session.name.toUpperCase()} • PRIVATE ASSESSMENT • CONFIDENTIAL`;
-  const stepX = 340 * dpr;
-  const stepY = 200 * dpr;
+  const stepX = 360 * dpr;
+  const stepY = 220 * dpr;
 
   for (let x = -markCanvas.width; x < markCanvas.width * 2; x += stepX) {
     for (let y = -markCanvas.height; y < markCanvas.height * 2; y += stepY) {
@@ -402,7 +375,57 @@ async function renderPDFPage(pageNum, docCanvas, markCanvas, docCtx, markCtx, se
   markCtx.restore();
 }
 
-// 9. Breakout Arcade (With Pull-To-Refresh Lock)
+// Mobile Two-Finger Pinch-to-Zoom Gesture Support
+function initPinchToZoom() {
+  const container = document.getElementById("canvasViewport");
+  if (!container) return;
+
+  let initialDist = 0;
+  let initialZoom = 1.0;
+  let isPinching = false;
+
+  container.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 2) {
+      isPinching = true;
+      initialDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      initialZoom = zoom;
+    }
+  }, { passive: true });
+
+  container.addEventListener("touchmove", (e) => {
+    if (isPinching && e.touches.length === 2) {
+      const currentDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const factor = currentDist / initialDist;
+      let targetZoom = Math.min(3.0, Math.max(1.0, initialZoom * factor));
+      targetZoom = Math.round(targetZoom * 10) / 10;
+
+      if (Math.abs(targetZoom - zoom) >= 0.2) {
+        zoom = targetZoom;
+        document.getElementById("zoomLevel").textContent = `${Math.round(zoom * 100)}%`;
+        const docCanvas = document.getElementById("documentCanvas");
+        const markCanvas = document.getElementById("watermarkCanvas");
+        const docCtx = docCanvas.getContext("2d");
+        const markCtx = markCanvas.getContext("2d");
+        const session = getSession() || { name: "Student" };
+        renderPDFPage(currentPage, docCanvas, markCanvas, docCtx, markCtx, session);
+      }
+    }
+  }, { passive: true });
+
+  container.addEventListener("touchend", (e) => {
+    if (e.touches.length < 2) {
+      isPinching = false;
+    }
+  });
+}
+
+// 9. Breakout Arcade
 function initBreakout() {
   const canvas = document.getElementById("breakoutCanvas");
   if (!canvas) return;
@@ -631,7 +654,7 @@ function initShreyanCatBot() {
       return "Class batches meet Tuesday & Friday (5:00 PM) or Wednesday & Saturday (5:30 PM). Sunday is test & doubt clearing at 9:00 AM! 🐾";
     }
     if (s.includes("paper") || s.includes("test") || s.includes("exam") || s.includes("omr")) {
-      return "Weekly mock papers are uploaded into the <strong>Sample Paper</strong> tab! Check questions on-screen and bring your blank 50-mark OMR sheets on Sunday.";
+      return "Weekly mock papers are in the <strong>Sample Paper</strong> tab! Check questions on-screen and bring your blank 50-mark OMR sheets on Sunday.";
     }
     if (s.includes("joke") || s.includes("funny") || s.includes("laugh")) {
       return "Why was the cat sitting on the computer? Because it wanted to keep an eye on the mouse! 🐭😹";
@@ -698,15 +721,70 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => switchTab(btn.getAttribute("data-tab")));
   });
 
+  // Zoom Controls: Allows zooming from 100% up to 300% (3.0x)
   const zoomIn = document.getElementById("zoomInBtn");
   const zoomOut = document.getElementById("zoomOutBtn");
-  if (zoomIn) zoomIn.addEventListener("click", () => { if (zoom < 1.4) { zoom += 0.1; document.getElementById("zoomLevel").textContent = `${Math.round(zoom * 100)}%`; initPDFViewer(); } });
-  if (zoomOut) zoomOut.addEventListener("click", () => { if (zoom > 0.8) { zoom -= 0.1; document.getElementById("zoomLevel").textContent = `${Math.round(zoom * 100)}%`; initPDFViewer(); } });
+  if (zoomIn) {
+    zoomIn.addEventListener("click", () => {
+      if (zoom < 3.0) {
+        zoom = Math.min(3.0, Math.round((zoom + 0.25) * 100) / 100);
+        document.getElementById("zoomLevel").textContent = `${Math.round(zoom * 100)}%`;
+        const docCanvas = document.getElementById("documentCanvas");
+        const markCanvas = document.getElementById("watermarkCanvas");
+        const docCtx = docCanvas.getContext("2d");
+        const markCtx = markCanvas.getContext("2d");
+        const session = getSession() || { name: "Student" };
+        renderPDFPage(currentPage, docCanvas, markCanvas, docCtx, markCtx, session);
+      }
+    });
+  }
+
+  if (zoomOut) {
+    zoomOut.addEventListener("click", () => {
+      if (zoom > 1.0) {
+        zoom = Math.max(1.0, Math.round((zoom - 0.25) * 100) / 100);
+        document.getElementById("zoomLevel").textContent = `${Math.round(zoom * 100)}%`;
+        const docCanvas = document.getElementById("documentCanvas");
+        const markCanvas = document.getElementById("watermarkCanvas");
+        const docCtx = docCanvas.getContext("2d");
+        const markCtx = markCanvas.getContext("2d");
+        const session = getSession() || { name: "Student" };
+        renderPDFPage(currentPage, docCanvas, markCanvas, docCtx, markCtx, session);
+      }
+    });
+  }
 
   const prevBtn = document.getElementById("prevPageBtn");
   const nextBtn = document.getElementById("nextPageBtn");
-  if (prevBtn) prevBtn.addEventListener("click", () => { if (currentPage > 1) { currentPage--; document.getElementById("currentPageNum").textContent = currentPage; initPDFViewer(); } });
-  if (nextBtn) nextBtn.addEventListener("click", () => { if (pdfDoc && currentPage < pdfDoc.numPages) { currentPage++; document.getElementById("currentPageNum").textContent = currentPage; initPDFViewer(); } });
+  if (prevBtn) {
+    prevBtn.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        document.getElementById("currentPageNum").textContent = currentPage;
+        const docCanvas = document.getElementById("documentCanvas");
+        const markCanvas = document.getElementById("watermarkCanvas");
+        const docCtx = docCanvas.getContext("2d");
+        const markCtx = markCanvas.getContext("2d");
+        const session = getSession() || { name: "Student" };
+        renderPDFPage(currentPage, docCanvas, markCanvas, docCtx, markCtx, session);
+      }
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      if (pdfDoc && currentPage < pdfDoc.numPages) {
+        currentPage++;
+        document.getElementById("currentPageNum").textContent = currentPage;
+        const docCanvas = document.getElementById("documentCanvas");
+        const markCanvas = document.getElementById("watermarkCanvas");
+        const docCtx = docCanvas.getContext("2d");
+        const markCtx = markCanvas.getContext("2d");
+        const session = getSession() || { name: "Student" };
+        renderPDFPage(currentPage, docCanvas, markCanvas, docCtx, markCtx, session);
+      }
+    });
+  }
 
   const discForm = document.getElementById("discussionForm");
   if (discForm) {
@@ -727,7 +805,7 @@ document.addEventListener("DOMContentLoaded", () => {
         replies: []
       });
 
-      localStorage.setItem("tuition_discussions_v5", JSON.stringify(discussions));
+      localStorage.setItem("tuition_discussions_clean", JSON.stringify(discussions));
       discForm.reset();
       renderDiscussions();
     });
@@ -745,26 +823,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const student = roster[name];
 
       if (student && student.pin === pass) {
-        const logs = JSON.parse(localStorage.getItem("tuition_access_logs_v5") || "[]");
-        logs.unshift({
-          name: student.name,
-          time: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
-        });
-        if (logs.length > 25) logs.pop();
-        localStorage.setItem("tuition_access_logs_v5", JSON.stringify(logs));
-
-        localStorage.setItem("tuition_session_v5", JSON.stringify({
+        localStorage.setItem("tuition_session_clean", JSON.stringify({
           id: name,
           name: student.name,
           feesPaid: student.feesPaid,
           pendingMonths: student.pendingMonths
         }));
 
-        if (name === "admin") {
-          window.location.href = "admin.html";
-        } else {
-          checkAuthAndRender();
-        }
+        checkAuthAndRender();
       } else {
         err.textContent = "Invalid name or PIN. Please ask Swati Ma'am.";
         err.style.display = "block";
@@ -775,7 +841,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("tuition_session_v5");
+      localStorage.removeItem("tuition_session_clean");
       checkAuthAndRender();
     });
   }
