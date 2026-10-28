@@ -1,6 +1,6 @@
 /* ==========================================================================
    TUITION STUDY PORTAL - MASTER STYLESHEET
-   Includes: Theme system, Paw trail, Discussions, ShreyanCat widget, Touch Fix
+   Includes: Mobile Smooth Pan & Pinch-Zoom, Dark/Light Themes, Breakout Arcade
    ========================================================================== */
 
 :root {
@@ -51,10 +51,7 @@ body {
   flex-direction: column;
 }
 
-/* ==========================================================================
-   DESKTOP CAT PAW CURSOR TRAIL
-   ========================================================================== */
-
+/* Desktop Paw Trail */
 .floating-paw {
   position: fixed;
   pointer-events: none;
@@ -391,7 +388,7 @@ textarea:focus,
 .btn-secondary { background: var(--bg-surface-elevated); color: var(--text-main); border: 1px solid var(--border-color); }
 .btn-outline-sm { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.35rem 0.75rem; font-size: 0.82rem; }
 .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-color); color: var(--text-main); }
-.btn-icon { width: 32px; height: 32px; background: var(--bg-surface-elevated); border: 1px solid var(--border-color); color: var(--text-main); font-weight: 700; cursor: pointer; }
+.btn-icon { width: 34px; height: 34px; background: var(--bg-surface-elevated); border: 1px solid var(--border-color); color: var(--text-main); font-weight: 700; cursor: pointer; border-radius: var(--radius-sm); }
 .btn-whatsapp { background: #16a34a; color: #fff; }
 .btn-whatsapp:hover { background: #15803d; }
 
@@ -411,7 +408,10 @@ textarea:focus,
 .fee-lock-card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5; }
 .fee-lock-actions { max-width: 320px; margin: 0 auto; }
 
-/* Paper Canvas Viewer */
+/* ==========================================================================
+   ENHANCED PDF CANVAS VIEWPORT (SMOOTH PAN & ZOOM)
+   ========================================================================== */
+
 .viewer-header-row {
   display: flex;
   justify-content: space-between;
@@ -424,10 +424,11 @@ textarea:focus,
 .viewer-workspace {
   background: #334155;
   border-radius: var(--radius-md);
-  padding: 1rem;
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
 
 .viewer-toolbar {
@@ -435,30 +436,47 @@ textarea:focus,
   max-width: 850px;
   background: #1e293b;
   border-radius: var(--radius-sm);
-  padding: 0.6rem 1rem;
+  padding: 0.6rem 0.85rem;
   display: flex;
   justify-content: space-between;
   color: #fff;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .toolbar-left, .toolbar-right {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
+/* Crucial: Allows fluid horizontal and vertical dragging/swiping when zoomed */
 .canvas-viewport {
   position: relative;
   width: 100%;
   max-width: 850px;
-  background: #fff;
-  overflow: hidden;
+  max-height: 75vh;
+  background: #e2e8f0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
   border-radius: 4px;
+  display: block;
+  touch-action: pan-x pan-y;
 }
 
-.document-layer { display: block; width: 100%; height: auto; }
-.watermark-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+/* Canvas layers scale dynamically via JS width/height styles */
+.document-layer {
+  display: block;
+  margin: 0 auto;
+}
+
+.watermark-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
 
 .security-blur-overlay {
   position: absolute;
@@ -471,9 +489,10 @@ textarea:focus,
   justify-content: center;
   text-align: center;
   color: #fff;
+  padding: 1rem;
 }
 
-/* Breakout Arcade (Includes Mobile Gesture Lock) */
+/* Breakout Arcade */
 .game-stage {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
@@ -507,16 +526,10 @@ textarea:focus,
   display: block;
   width: 100%;
   height: auto;
-  touch-action: none; /* Stops mobile browsers from pulling-to-refresh or scrolling during play */
+  touch-action: none;
 }
 
 .arcade-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.92); display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 1.5rem; }
-
-/* Tables */
-.table-responsive { overflow-x: auto; width: 100%; }
-.academic-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
-.academic-table th, .academic-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); }
-.academic-table th { background: var(--bg-page); color: var(--text-muted); }
 
 /* ShreyanCat Assistant Widget */
 .cat-floating-bubble {
@@ -684,10 +697,11 @@ textarea:focus,
 
 .portal-footer strong { color: var(--primary); }
 
-/* Anti-Print Protection */
 @media print { html, body { display: none !important; } }
 
 @media (max-width: 768px) {
   .nav-container { flex-direction: column; align-items: stretch; gap: 0.75rem; }
   .nav-tabs { overflow-x: auto; }
+  .viewer-workspace { padding: 0.4rem; }
+  .canvas-viewport { max-height: 80vh; }
 }
