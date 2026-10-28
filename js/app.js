@@ -1,11 +1,18 @@
 /* ==========================================================================
    TUITION STUDY PORTAL - MASTER ENGINE
-   Includes: Auth (36 Students), Tabs, ShreyanCat Bot, Desktop Paw Trail,
-             Discussions, Doubt Submissions, Breakout Game, Canvas PDF Viewer
+   Features:
+   - Global GitHub Fee Sync from papers/roster.json
+   - High-DPI Retina Canvas Sharpening (devicePixelRatio)
+   - Anti-Pull-To-Refresh Breakout Arcade
+   - WhatsApp-Direct Student Doubts
+   - ShreyanCat Assistant & Desktop Paw Trail
    ========================================================================== */
 
-// 1. Master Roster (36 Students - All Unlocked by default)
-const DEFAULT_STUDENTS = {
+// Configure Instructor WhatsApp Phone Number (with Country Code, no '+' or spaces)
+const SWATI_MAAM_PHONE = "918910337293";
+
+// Fallback student roster
+const DEFAULT_FALLBACK_ROSTER = {
   "shreyan": { name: "Shreyan", pin: "5542", feesPaid: true, pendingMonths: "" },
   "abir": { name: "Abir", pin: "4821", feesPaid: true, pendingMonths: "" },
   "adrita": { name: "Adrita", pin: "7394", feesPaid: true, pendingMonths: "" },
@@ -45,17 +52,24 @@ const DEFAULT_STUDENTS = {
   "admin": { name: "Instructor", pin: "9988", feesPaid: true, pendingMonths: "" }
 };
 
-function getRoster() {
-  const saved = localStorage.getItem("tuition_roster_v4");
-  if (!saved) {
-    localStorage.setItem("tuition_roster_v4", JSON.stringify(DEFAULT_STUDENTS));
-    return DEFAULT_STUDENTS;
+// 1. Live Global Roster Fetch (Pulls fresh status from GitHub repository)
+async function getLiveRoster() {
+  try {
+    const res = await fetch(`./papers/roster.json?t=${Date.now()}`);
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem("tuition_roster_cache", JSON.stringify(data));
+      return data;
+    }
+  } catch (e) {
+    // offline or network fallback
   }
-  return JSON.parse(saved);
+  const cached = localStorage.getItem("tuition_roster_cache");
+  return cached ? JSON.parse(cached) : DEFAULT_FALLBACK_ROSTER;
 }
 
 function getSession() {
-  const s = localStorage.getItem("tuition_session_v4");
+  const s = localStorage.getItem("tuition_session_v5");
   return s ? JSON.parse(s) : null;
 }
 
@@ -96,8 +110,8 @@ function toggleTheme() {
   if (btn) btn.textContent = next === "dark" ? "☀️ Light" : "🌙 Dark";
 }
 
-// 4. Session Validation & Fee Lock Renderer
-function checkAuthAndRender() {
+// 4. Session Validation & Fee Lock Renderer (Validates with live roster)
+async function checkAuthAndRender() {
   const session = getSession();
   const loginScreen = document.getElementById("loginScreen");
   const portalScreen = document.getElementById("portalScreen");
@@ -106,6 +120,15 @@ function checkAuthAndRender() {
     loginScreen.style.display = "flex";
     portalScreen.style.display = "none";
     return;
+  }
+
+  // Cross-check live fee status from GitHub
+  const roster = await getLiveRoster();
+  const liveStudent = roster[session.id];
+  if (liveStudent) {
+    session.feesPaid = liveStudent.feesPaid;
+    session.pendingMonths = liveStudent.pendingMonths;
+    localStorage.setItem("tuition_session_v5", JSON.stringify(session));
   }
 
   loginScreen.style.display = "none";
@@ -118,6 +141,7 @@ function checkAuthAndRender() {
   const homeUnlocked = document.getElementById("homeUnlockedView");
   const feeCard = document.getElementById("feeLockScreen");
   const feeMsg = document.getElementById("feeLockMessage");
+  const feeWaBtn = document.getElementById("feeWhatsAppBtn");
 
   if (session.feesPaid) {
     if (homeUnlocked) homeUnlocked.style.display = "block";
@@ -126,7 +150,10 @@ function checkAuthAndRender() {
     if (homeUnlocked) homeUnlocked.style.display = "none";
     if (feeCard) feeCard.style.display = "block";
     if (feeMsg) {
-      feeMsg.innerHTML = `Hello <strong>${session.name}</strong>, your evaluation portal is temporarily on hold because batch fees for <strong>${session.pendingMonths || "recent months"}</strong> are pending.<br><br>Please clear dues with Swati Ma'am to unlock.`;
+      feeMsg.innerHTML = `Hello <strong>${session.name}</strong>, your evaluation portal is temporarily on hold because tuition fees for <strong>${session.pendingMonths || "recent months"}</strong> are pending.<br><br>Please clear dues with Swati Ma'am to unlock.`;
+    }
+    if (feeWaBtn) {
+      feeWaBtn.href = `https://wa.me/${SWATI_MAAM_PHONE}?text=${encodeURIComponent("Hello Swati Ma'am, I am " + session.name + ". I am writing regarding my pending tuition fees.")}`;
     }
   }
 }
@@ -137,7 +164,7 @@ function initPawTrail() {
     let lastTime = 0;
     document.addEventListener("mousemove", (e) => {
       const now = Date.now();
-      if (now - lastTime < 75) return;
+      if (now - lastTime < 70) return;
       lastTime = now;
 
       const paw = document.createElement("span");
@@ -150,7 +177,7 @@ function initPawTrail() {
       paw.style.transform = `translate(-50%, -50%) rotate(${rot}deg) scale(${0.7 + Math.random() * 0.4})`;
 
       document.body.appendChild(paw);
-      setTimeout(() => paw.remove(), 900);
+      setTimeout(() => paw.remove(), 850);
     });
   }
 }
@@ -180,9 +207,9 @@ const INITIAL_DISCUSSIONS = [
 ];
 
 function getDiscussions() {
-  const d = localStorage.getItem("tuition_discussions");
+  const d = localStorage.getItem("tuition_discussions_v5");
   if (!d) {
-    localStorage.setItem("tuition_discussions", JSON.stringify(INITIAL_DISCUSSIONS));
+    localStorage.setItem("tuition_discussions_v5", JSON.stringify(INITIAL_DISCUSSIONS));
     return INITIAL_DISCUSSIONS;
   }
   return JSON.parse(d);
@@ -238,17 +265,16 @@ function renderDiscussions() {
       const target = discussions.find(d => d.id === id);
       if (target) {
         target.replies.push({ author: session.name, text: replyText });
-        localStorage.setItem("tuition_discussions", JSON.stringify(discussions));
+        localStorage.setItem("tuition_discussions_v5", JSON.stringify(discussions));
         renderDiscussions();
       }
     });
   });
 }
 
-// 7. Student Notes/Doubt Submission Box
+// 7. Student Notes Routing Directly to WhatsApp
 function initFeedback() {
   const form = document.getElementById("feedbackForm");
-  const notice = document.getElementById("feedbackNotice");
   if (!form) return;
 
   form.addEventListener("submit", (e) => {
@@ -257,21 +283,14 @@ function initFeedback() {
     const session = getSession();
     if (!text || !session) return;
 
-    const feedbacks = JSON.parse(localStorage.getItem("tuition_feedbacks") || "[]");
-    feedbacks.unshift({
-      name: session.name,
-      time: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
-      text: text
-    });
-    localStorage.setItem("tuition_feedbacks", JSON.stringify(feedbacks));
-
+    // Direct WhatsApp message pre-fill
+    const waUrl = `https://wa.me/${SWATI_MAAM_PHONE}?text=${encodeURIComponent("Student Doubt from " + session.name + ":\n" + text)}`;
+    window.open(waUrl, "_blank");
     form.reset();
-    notice.style.display = "inline";
-    setTimeout(() => { notice.style.display = "none"; }, 3500);
   });
 }
 
-// 8. PDF.js Viewer with Multi-Paper Selection & Strict Privacy Watermark
+// 8. PDF.js Viewer with High-DPI Canvas Sharpening & Watermarking
 let pdfDoc = null;
 let currentPage = 1;
 let zoom = 1.0;
@@ -343,33 +362,47 @@ async function loadSelectedPDF(filePath) {
 async function renderPDFPage(pageNum, docCanvas, markCanvas, docCtx, markCtx, session) {
   if (!pdfDoc) return;
   const page = await pdfDoc.getPage(pageNum);
-  const viewport = page.getViewport({ scale: zoom * 1.4 });
 
+  // High-DPI Retina Display Multiplier
+  const dpr = window.devicePixelRatio || 1;
+  const baseScale = zoom * 1.35;
+  const viewport = page.getViewport({ scale: baseScale * dpr });
+
+  // High resolution hardware buffer
   docCanvas.width = viewport.width;
   docCanvas.height = viewport.height;
   markCanvas.width = viewport.width;
   markCanvas.height = viewport.height;
 
+  // Responsive CSS viewport display sizing
+  docCanvas.style.width = "100%";
+  docCanvas.style.height = "auto";
+  markCanvas.style.width = "100%";
+  markCanvas.style.height = "auto";
+
   await page.render({ canvasContext: docCtx, viewport: viewport }).promise;
 
-  // Stamped watermark: ONLY Student Name & Confidentiality (NO PIN, NO CLASS)
+  // Clean dynamic watermark (NO PIN, NO CLASS)
   markCtx.clearRect(0, 0, markCanvas.width, markCanvas.height);
   markCtx.save();
   markCtx.rotate((-25 * Math.PI) / 180);
-  markCtx.font = "bold 20px sans-serif";
+  markCtx.font = `bold ${22 * dpr}px sans-serif`;
   markCtx.fillStyle = "rgba(220, 38, 38, 0.13)";
   markCtx.textAlign = "center";
 
   const stamp = `${session.name.toUpperCase()} • PRIVATE ASSESSMENT • CONFIDENTIAL`;
-  for (let x = -markCanvas.width; x < markCanvas.width * 2; x += 320) {
-    for (let y = -markCanvas.height; y < markCanvas.height * 2; y += 180) {
+  const stepX = 340 * dpr;
+  const stepY = 200 * dpr;
+
+  for (let x = -markCanvas.width; x < markCanvas.width * 2; x += stepX) {
+    for (let y = -markCanvas.height; y < markCanvas.height * 2; y += stepY) {
       markCtx.fillText(stamp, x, y);
     }
   }
   markCtx.restore();
 }
 
-// 9. Breakout Arcade
+// 9. Breakout Arcade (With Pull-To-Refresh Lock)
 function initBreakout() {
   const canvas = document.getElementById("breakoutCanvas");
   if (!canvas) return;
@@ -417,7 +450,7 @@ function initBreakout() {
   canvas.addEventListener("mousemove", (e) => handlePointer(e.clientX));
   canvas.addEventListener("touchmove", (e) => {
     if (e.touches.length) handlePointer(e.touches[0].clientX);
-  });
+  }, { passive: true });
 
   function gameLoop() {
     if (gameState === "PLAYING") {
@@ -481,7 +514,7 @@ function initBreakout() {
             highScoreDisplay.textContent = highScore;
           }
           overlayTitle.textContent = "GAME OVER";
-          overlaySub.textContent = `Score: ${score} pts. Ready for another round?`;
+          overlaySub.textContent = `Score: ${score} pts. Head clear? Ready for another round?`;
           overlayBtn.textContent = "Play Again";
           overlay.style.display = "flex";
         } else {
@@ -492,7 +525,7 @@ function initBreakout() {
       if (active === 0) {
         gameState = "WON";
         overlayTitle.textContent = "BOARD CLEARED! 🏆";
-        overlaySub.textContent = `High score reflexes! Final Score: ${score} pts.`;
+        overlaySub.textContent = `Reflex master! Final Score: ${score} pts.`;
         overlay.style.display = "flex";
       }
     }
@@ -694,7 +727,7 @@ document.addEventListener("DOMContentLoaded", () => {
         replies: []
       });
 
-      localStorage.setItem("tuition_discussions", JSON.stringify(discussions));
+      localStorage.setItem("tuition_discussions_v5", JSON.stringify(discussions));
       discForm.reset();
       renderDiscussions();
     });
@@ -702,25 +735,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
-    loginForm.addEventListener("submit", (e) => {
+    loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("studentName").value.trim().toLowerCase();
       const pass = document.getElementById("studentPass").value.trim();
       const err = document.getElementById("authError");
 
-      const roster = getRoster();
+      const roster = await getLiveRoster();
       const student = roster[name];
 
       if (student && student.pin === pass) {
-        const logs = JSON.parse(localStorage.getItem("tuition_access_logs_v4") || "[]");
+        const logs = JSON.parse(localStorage.getItem("tuition_access_logs_v5") || "[]");
         logs.unshift({
           name: student.name,
           time: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
         });
         if (logs.length > 25) logs.pop();
-        localStorage.setItem("tuition_access_logs_v4", JSON.stringify(logs));
+        localStorage.setItem("tuition_access_logs_v5", JSON.stringify(logs));
 
-        localStorage.setItem("tuition_session_v4", JSON.stringify({
+        localStorage.setItem("tuition_session_v5", JSON.stringify({
           id: name,
           name: student.name,
           feesPaid: student.feesPaid,
@@ -742,7 +775,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("tuition_session_v4");
+      localStorage.removeItem("tuition_session_v5");
       checkAuthAndRender();
     });
   }
