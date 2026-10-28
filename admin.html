@@ -13,7 +13,7 @@
     <div class="welcome-card">
       <div>
         <h2>Faculty Desk — Student Fees, Uploads &amp; Logs</h2>
-        <p>Upload test papers, manage live synced student fees, and review login logs.</p>
+        <p>Upload test papers, manage live synced student fees, and review global logins.</p>
       </div>
       <a href="index.html" class="btn btn-outline-sm">&larr; Return to Portal</a>
     </div>
@@ -76,18 +76,26 @@
       <p id="saveNotice" style="display: none; font-weight: 600; margin-top: 0.75rem;"></p>
     </div>
 
-    <!-- Live Access Logs -->
+    <!-- Live Global Access Logs -->
     <div class="card">
-      <h3>Recent Student Logins (This Browser)</h3>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <div>
+          <h3>Live Global Student Logins (All Devices)</h3>
+          <small style="color: var(--text-muted);">Updates in real time whenever any student signs in from any device.</small>
+        </div>
+        <button id="refreshLogsBtn" class="btn btn-outline-sm">🔄 Refresh Logs</button>
+      </div>
       <div class="table-responsive">
         <table class="academic-table">
           <thead>
             <tr>
-              <th>Student Name</th>
-              <th>Login Time</th>
+              <th>Student Activity</th>
+              <th>Date &amp; Time (IST)</th>
             </tr>
           </thead>
-          <tbody id="accessLogBody"></tbody>
+          <tbody id="accessLogBody">
+            <tr><td colspan="2" style="text-align: center; color: var(--text-muted);">Connecting to live sync stream...</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -99,11 +107,13 @@
   </div>
 
   <script>
-    // === REPOSITORY CONFIGURATION ===
-    // Enter your GitHub username and repository name here:
+    // === REPOSITORY & CLOUD SYNC CONFIGURATION ===
     const GITHUB_OWNER = "YOUR_GITHUB_USERNAME";
     const GITHUB_REPO = "YOUR_REPO_NAME";
-    // ================================
+    
+    // Choose any unique secret phrase so nobody else can guess your stream
+    const TUITION_LOG_CHANNEL = "tuition_desk_logins_700124";
+    // =============================================
 
     document.addEventListener("DOMContentLoaded", async () => {
       // 1. Token Setup
@@ -137,7 +147,6 @@
           rosterSha = rosterData.sha;
           liveRoster = JSON.parse(decodeURIComponent(escape(atob(rosterData.content))));
         } else {
-          // Fallback to local fetch
           const localRes = await fetch(`./papers/roster.json?t=${Date.now()}`);
           liveRoster = await localRes.json();
         }
@@ -183,7 +192,6 @@
         saveNotice.style.color = "var(--primary)";
         saveNotice.textContent = "Updating global roster on GitHub...";
 
-        // Extract latest values from table
         document.querySelectorAll(".status-sel").forEach(s => {
           const id = s.getAttribute("data-id");
           liveRoster[id].feesPaid = (s.value === "paid");
@@ -194,7 +202,6 @@
         });
 
         try {
-          // Fetch freshest SHA if missing
           if (!rosterSha) {
             const checkRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/papers/roster.json`, {
               headers: { "Authorization": `Bearer ${savedToken}` }
@@ -333,18 +340,42 @@
         }
       });
 
-      // 5. Render Local Logins
-      const logBody = document.getElementById("accessLogBody");
-      const logs = JSON.parse(localStorage.getItem("tuition_access_logs_v5") || "[]");
-      if (logs.length === 0) {
-        logBody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--text-muted);">No logins recorded on this browser today.</td></tr>`;
-      } else {
-        logs.forEach(l => {
-          const row = document.createElement("tr");
-          row.innerHTML = `<td><strong>${l.name}</strong></td><td>${l.time}</td>`;
-          logBody.appendChild(row);
-        });
+      // 5. Live Global Login Sync Reader
+      async function loadLiveGlobalLogs() {
+        const logBody = document.getElementById("accessLogBody");
+        try {
+          const res = await fetch(`https://ntfy.sh/${TUITION_LOG_CHANNEL}/json?poll=1&since=all`);
+          if (!res.ok) throw new Error("Stream unreachable");
+
+          const rawText = await res.text();
+          const lines = rawText.trim().split("\n").filter(Boolean);
+          const entries = lines.map(line => {
+            try { return JSON.parse(line); } catch (e) { return null; }
+          }).filter(e => e && e.event === "message");
+
+          if (entries.length === 0) {
+            logBody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--text-muted);">No student logins recorded yet.</td></tr>`;
+            return;
+          }
+
+          logBody.innerHTML = "";
+          // Show newest logins first (up to last 35)
+          entries.reverse().slice(0, 35).forEach(item => {
+            const row = document.createElement("tr");
+            const dateStr = new Date(item.time * 1000).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+            row.innerHTML = `
+              <td><strong>${item.message || "Student Login"}</strong></td>
+              <td style="color: var(--text-muted); font-size: 0.85rem;">${dateStr}</td>
+            `;
+            logBody.appendChild(row);
+          });
+        } catch (err) {
+          logBody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--text-muted);">Sync active. Refresh to check for latest logins.</td></tr>`;
+        }
       }
+
+      loadLiveGlobalLogs();
+      document.getElementById("refreshLogsBtn").addEventListener("click", loadLiveGlobalLogs);
     });
   </script>
 </body>
