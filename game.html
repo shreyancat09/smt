@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arcade Zone | Classroom Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="brand">
+        <span class="logo-mark">📖</span>
+        <span class="brand-name">Tuition Portal</span>
+      </div>
+      <nav class="nav-links">
+        <a href="home.html" class="nav-link">Home</a>
+        <a href="sample-papers.html" class="nav-link">Sample Papers</a>
+        <a href="games.html" class="nav-link active">Arcade Zone</a>
+        <a href="contact.html" class="nav-link">Batches & Contact</a>
+      </nav>
+      <div class="user-control">
+        <span class="student-pill" id="studentDisplay">Student</span>
+        <button id="logoutBtn" class="btn btn-outline-sm">Log Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-container">
+    <div class="page-header">
+      <h2>Arcade Refreshment Zone</h2>
+      <p>Take a 5-minute break between study sessions. Clear the bricks and beat the batch record.</p>
+    </div>
+
+    <!-- Arcade Stage -->
+    <section class="game-stage" id="gameStage">
+      
+      <!-- Stage Header & HUD -->
+      <div class="stage-header">
+        <div class="blitz-stats">
+          <div class="stat-pill">
+            <span class="stat-label">SCORE</span>
+            <span class="stat-val" id="arcadeScore">0</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-label">LIVES</span>
+            <span class="stat-val" id="arcadeLives">❤️❤️❤️</span>
+          </div>
+          <div class="stat-pill highlight">
+            <span class="stat-label">HIGH SCORE</span>
+            <span class="stat-val" id="arcadeHighScore">0</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="pauseArcadeBtn" class="btn btn-outline-sm">Pause</button>
+          <button id="resetArcadeBtn" class="btn btn-outline-sm">Restart</button>
+        </div>
+      </div>
+
+      <!-- Arcade Viewport & Canvas -->
+      <div class="arcade-viewport-wrapper">
+        <canvas id="breakoutCanvas" width="720" height="480"></canvas>
+        
+        <!-- Interactive Overlay: Start / Pause / Game Over -->
+        <div id="arcadeOverlay" class="arcade-overlay">
+          <div class="arcade-modal">
+            <h3 id="overlayTitle">⚡ BREAKOUT ARCADE</h3>
+            <p id="overlaySub">Clear all bricks, grab falling power-ups, and keep the ball alive!</p>
+            <div class="controls-guide">
+              <span>🖥️ <strong>Desktop:</strong> Mouse or Left / Right Arrows</span><br>
+              <span>📱 <strong>Mobile:</strong> Drag finger across the screen</span>
+            </div>
+            <button id="overlayActionBtn" class="btn btn-primary">Start Game &rarr;</button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <footer class="portal-footer">
+    <p>Private Tuition Portal &bull; Strictly for enrolled batch students</p>
+  </footer>
+
+  <script src="js/auth.js"></script>
+  <script src="js/games.js"></script>
+</body>
+</html>
