@@ -8,24 +8,56 @@
 </head>
 <body class="auth-wrapper" style="padding: 1.5rem 0; display: block; overflow-y: auto;">
 
-  <div class="page-container" style="max-width: 850px;">
+  <div class="page-container" style="max-width: 900px;">
     
     <div class="welcome-card">
       <div>
-        <h2>Faculty Desk — Student Fees &amp; Logs</h2>
-        <p>You control who has paid and who is locked out.</p>
+        <h2>Faculty Desk — Student Fees, Uploads &amp; Logs</h2>
+        <p>Upload test papers directly from phone, manage fee locks, and view logs.</p>
       </div>
       <a href="index.html" class="btn btn-outline-sm">&larr; Return to Portal</a>
     </div>
 
-    <!-- Paper Upload Step for Mom -->
+    <!-- Direct PDF Upload From Phone -->
     <div class="card" style="margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
-      <h3>📤 How to Upload This Week's Paper</h3>
-      <p style="font-size: 0.92rem; margin-top: 0.4rem;">
-        1. Open this repository on GitHub on your phone.<br>
-        2. Tap the <strong>papers</strong> folder &rarr; tap <strong>Add file</strong> &rarr; <strong>Upload files</strong>.<br>
-        3. Pick your PDF, rename it to <strong>weekly.pdf</strong>, and tap <strong>Commit changes</strong>.
+      <h3>📤 Upload New Test Paper</h3>
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+        Type the title for the paper and select the PDF from your phone storage.
       </p>
+
+      <form id="directUploadForm">
+        <div class="form-group">
+          <label for="uploadPaperTitle">Paper Name</label>
+          <input type="text" id="uploadPaperTitle" placeholder="e.g. Sample Paper 1" required>
+        </div>
+
+        <div class="form-group">
+          <label for="uploadPdfFile">Select PDF File</label>
+          <input type="file" id="uploadPdfFile" accept="application/pdf" required>
+        </div>
+
+        <div id="tokenConfigArea" style="background: var(--bg-page); padding: 0.85rem; border-radius: var(--radius-sm); margin-bottom: 1rem; border: 1px dashed var(--border-color);">
+          <label style="font-size: 0.82rem; font-weight: 700;">GitHub Access Key (Save Once on Mom's Phone):</label>
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.35rem;">
+            <input type="password" id="ghTokenInput" placeholder="Paste GitHub Token here once" style="flex: 1; font-size: 0.85rem;">
+            <button type="button" id="saveTokenBtn" class="btn btn-outline-sm">Save Key</button>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span id="uploadStatusText" style="font-size: 0.88rem; font-weight: 600;"></span>
+          <button type="submit" id="submitUploadBtn" class="btn btn-primary">Upload &amp; Activate Paper &rarr;</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Student Notes & Doubts -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <h3>📬 Student Notes &amp; Doubts Received</h3>
+        <button id="clearFeedbackBtn" class="btn btn-outline-sm">Clear All Notes</button>
+      </div>
+      <div id="adminFeedbackList" class="feedback-admin-feed"></div>
     </div>
 
     <!-- Student Fee Control Table -->
@@ -48,7 +80,7 @@
         </table>
       </div>
       <p id="saveNotice" style="display: none; color: #16a34a; font-weight: 600; margin-top: 0.75rem;">
-        Changes saved! Unpaid students are now locked.
+        Changes saved! Unpaid students are locked out.
       </p>
     </div>
 
@@ -68,54 +100,161 @@
       </div>
     </div>
 
-    <!-- Master Developer Footer -->
     <footer class="portal-footer">
-      <p>Developed by <strong>ShreyanCat - Master developer, ShreyanAI</strong></p>
+      <p>Developed by <strong>ShreyanCat</strong></p>
     </footer>
 
   </div>
 
   <script>
+    // === REPOSITORY CONFIGURATION ===
+    const GITHUB_OWNER = "YOUR_GITHUB_USERNAME";
+    const GITHUB_REPO = "YOUR_REPO_NAME";
+    // ================================
+
     document.addEventListener("DOMContentLoaded", () => {
-      const roster = JSON.parse(localStorage.getItem("tuition_roster_v3") || "{}");
+      // 1. Token Setup
+      const tokenInp = document.getElementById("ghTokenInput");
+      const saveTokenBtn = document.getElementById("saveTokenBtn");
+      const tokenArea = document.getElementById("tokenConfigArea");
+      let savedToken = localStorage.getItem("tuition_gh_token");
+
+      if (savedToken) {
+        tokenArea.style.display = "none";
+      }
+
+      saveTokenBtn.addEventListener("click", () => {
+        const val = tokenInp.value.trim();
+        if (val) {
+          localStorage.setItem("tuition_gh_token", val);
+          alert("Key saved to this browser! You can now upload papers directly.");
+          tokenArea.style.display = "none";
+        }
+      });
+
+      // 2. Direct PDF Upload Handler
+      const uploadForm = document.getElementById("directUploadForm");
+      const uploadBtn = document.getElementById("submitUploadBtn");
+      const statusText = document.getElementById("uploadStatusText");
+
+      uploadForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        savedToken = localStorage.getItem("tuition_gh_token");
+
+        if (!savedToken) {
+          tokenArea.style.display = "block";
+          alert("Please enter the GitHub Access Key once to authorize uploads.");
+          return;
+        }
+
+        const title = document.getElementById("uploadPaperTitle").value.trim();
+        const file = document.getElementById("uploadPdfFile").files[0];
+        if (!file) return;
+
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = "Uploading... Please wait";
+        statusText.style.color = "var(--primary)";
+        statusText.textContent = "Reading PDF file...";
+
+        try {
+          const base64Content = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(",")[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+
+          const cleanFileName = "paper_" + Date.now() + ".pdf";
+          const filePath = `papers/${cleanFileName}`;
+
+          statusText.textContent = "Uploading to server...";
+          const putRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`, {
+            method: "PUT",
+            headers: {
+              "Authorization": `Bearer ${savedToken}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              message: `Upload test paper: ${title}`,
+              content: base64Content
+            })
+          });
+
+          if (!putRes.ok) throw new Error("Failed to upload PDF. Please verify your access key.");
+
+          statusText.textContent = "Registering paper title...";
+          let papersList = [];
+          let papersSha = null;
+
+          const jsonRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/papers/papers.json`, {
+            headers: { "Authorization": `Bearer ${savedToken}` }
+          });
+
+          if (jsonRes.ok) {
+            const jsonData = await jsonRes.json();
+            papersSha = jsonData.sha;
+            papersList = JSON.parse(decodeURIComponent(escape(atob(jsonData.content))));
+          }
+
+          papersList.unshift({
+            id: "p_" + Date.now(),
+            title: title,
+            file: filePath
+          });
+
+          const updatedJsonBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(papersList, null, 2))));
+          const updateJsonRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/papers/papers.json`, {
+            method: "PUT",
+            headers: {
+              "Authorization": `Bearer ${savedToken}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              message: `Register paper: ${title}`,
+              content: updatedJsonBase64,
+              sha: papersSha
+            })
+          });
+
+          if (!updateJsonRes.ok) throw new Error("Failed to update paper catalog.");
+
+          statusText.style.color = "var(--accent-emerald)";
+          statusText.textContent = "Paper uploaded & activated successfully!";
+          uploadForm.reset();
+        } catch (err) {
+          statusText.style.color = "var(--accent-rose)";
+          statusText.textContent = err.message;
+        } finally {
+          uploadBtn.disabled = false;
+          uploadBtn.textContent = "Upload & Activate Paper →";
+        }
+      });
+
+      // 3. Populate Students Roster Table
+      const roster = JSON.parse(localStorage.getItem("tuition_roster_v4") || "{}");
       const tbody = document.getElementById("studentRosterBody");
-      const logBody = document.getElementById("accessLogBody");
       const saveBtn = document.getElementById("saveRosterBtn");
       const saveNotice = document.getElementById("saveNotice");
 
-      // Populate Students
       for (const [key, student] of Object.entries(roster)) {
         if (key === "admin") continue;
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td><strong>${student.name}</strong></td>
           <td>
-            <select class="status-sel" data-id="${key}" style="padding: 0.35rem; border-radius: 4px; border: 1px solid #cbd5e1;">
+            <select class="status-sel" data-id="${key}" style="padding: 0.35rem; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-main);">
               <option value="paid" ${student.feesPaid ? "selected" : ""}>✅ Paid (Unlocked)</option>
               <option value="unpaid" ${!student.feesPaid ? "selected" : ""}>❌ Unpaid (Locked)</option>
             </select>
           </td>
           <td>
             <input type="text" class="months-inp" data-id="${key}" value="${student.pendingMonths || ''}" 
-                   placeholder="e.g. October" style="padding: 0.35rem 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%;">
+                   placeholder="e.g. October" style="padding: 0.35rem 0.6rem; border: 1px solid var(--border-color); border-radius: 4px; width: 100%; background: var(--bg-surface); color: var(--text-main);">
           </td>
         `;
         tbody.appendChild(tr);
       }
 
-      // Populate Logins
-      const logs = JSON.parse(localStorage.getItem("tuition_access_logs_v3") || "[]");
-      if (logs.length === 0) {
-        logBody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: #64748b;">No logins recorded yet today.</td></tr>`;
-      } else {
-        logs.forEach(l => {
-          const row = document.createElement("tr");
-          row.innerHTML = `<td><strong>${l.name}</strong></td><td>${l.time}</td>`;
-          logBody.appendChild(row);
-        });
-      }
-
-      // Save Click
       saveBtn.addEventListener("click", () => {
         document.querySelectorAll(".status-sel").forEach(s => {
           const id = s.getAttribute("data-id");
@@ -126,10 +265,51 @@
           roster[id].pendingMonths = i.value.trim();
         });
 
-        localStorage.setItem("tuition_roster_v3", JSON.stringify(roster));
+        localStorage.setItem("tuition_roster_v4", JSON.stringify(roster));
         saveNotice.style.display = "block";
         setTimeout(() => saveNotice.style.display = "none", 3000);
       });
+
+      // 4. Render Notes & Doubts
+      const feedbackList = document.getElementById("adminFeedbackList");
+      const notes = JSON.parse(localStorage.getItem("tuition_feedbacks") || "[]");
+      if (notes.length === 0) {
+        feedbackList.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem; font-style: italic;">No student notes submitted yet.</p>`;
+      } else {
+        feedbackList.innerHTML = "";
+        notes.forEach(item => {
+          const div = document.createElement("div");
+          div.className = "feedback-admin-item";
+          div.innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+              <strong>${item.name}</strong>
+              <small style="color: var(--text-muted);">${item.time}</small>
+            </div>
+            <p style="margin: 0; font-size: 0.9rem; color: var(--text-main);">${item.text}</p>
+          `;
+          feedbackList.appendChild(div);
+        });
+      }
+
+      document.getElementById("clearFeedbackBtn").addEventListener("click", () => {
+        if (confirm("Clear all received student notes?")) {
+          localStorage.removeItem("tuition_feedbacks");
+          location.reload();
+        }
+      });
+
+      // 5. Render Logins
+      const logBody = document.getElementById("accessLogBody");
+      const logs = JSON.parse(localStorage.getItem("tuition_access_logs_v4") || "[]");
+      if (logs.length === 0) {
+        logBody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--text-muted);">No logins recorded today.</td></tr>`;
+      } else {
+        logs.forEach(l => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td><strong>${l.name}</strong></td><td>${l.time}</td>`;
+          logBody.appendChild(row);
+        });
+      }
     });
   </script>
 </body>
