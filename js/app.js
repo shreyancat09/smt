@@ -1,6 +1,7 @@
 /* ==========================================================================
    TUITION STUDY PORTAL - ZERO-TOKEN MASTER ENGINE
    Features:
+   - Fixed Home Screen Router on Login
    - Dedicated Faculty Desk tab shown exclusively for Admin
    - Live roster & paper catalog fetched directly from GitHub repository files
    - Retina High-DPI Canvas Rendering with Dynamic Width Scaling (No 100% Clamp)
@@ -9,10 +10,9 @@
    - ShreyanCat Companion & Desktop Paw Trail
    ========================================================================== */
 
-// Configure Instructor WhatsApp Phone Number (with Country Code, no '+' or spaces)
 const SWATI_MAAM_PHONE = "91XXXXXXXXXX";
 
-// 1. Live Global Roster Fetch (Pulls fresh status from papers/roster.json)
+// 1. Live Global Roster Fetch
 async function getLiveRoster() {
   try {
     const res = await fetch(`./papers/roster.json?t=${Date.now()}`);
@@ -21,9 +21,7 @@ async function getLiveRoster() {
       localStorage.setItem("tuition_roster_cache", JSON.stringify(data));
       return data;
     }
-  } catch (e) {
-    // offline or network fallback
-  }
+  } catch (e) {}
   const cached = localStorage.getItem("tuition_roster_cache");
   return cached ? JSON.parse(cached) : {};
 }
@@ -41,7 +39,6 @@ function switchTab(tabId) {
     return;
   }
 
-  // Restrict Admin tab to admin user only
   if (tabId === "tab-admin" && (!session || session.id !== "admin")) {
     alert("Faculty Desk is restricted to administrative staff.");
     return;
@@ -85,13 +82,13 @@ async function checkAuthAndRender() {
   const adminNavTab = document.getElementById("adminNavTab");
 
   if (!session) {
-    loginScreen.style.display = "flex";
-    portalScreen.style.display = "none";
+    if (loginScreen) loginScreen.style.display = "flex";
+    if (portalScreen) portalScreen.style.display = "none";
     if (adminNavTab) adminNavTab.style.display = "none";
     return;
   }
 
-  // Cross-check live fee status from GitHub roster.json
+  // Check live status
   const roster = await getLiveRoster();
   const liveStudent = roster[session.id];
   if (liveStudent) {
@@ -100,10 +97,9 @@ async function checkAuthAndRender() {
     localStorage.setItem("tuition_session_clean", JSON.stringify(session));
   }
 
-  loginScreen.style.display = "none";
-  portalScreen.style.display = "block";
+  if (loginScreen) loginScreen.style.display = "none";
+  if (portalScreen) portalScreen.style.display = "block";
 
-  // Check if logged in user is Admin
   const isAdmin = (session.id === "admin");
   if (adminNavTab) {
     adminNavTab.style.display = isAdmin ? "inline-block" : "none";
@@ -134,9 +130,11 @@ async function checkAuthAndRender() {
     }
   }
 
-  // Automatically switch Admin directly to the Faculty Desk upon login
+  // Navigate to appropriate starting tab
   if (isAdmin) {
     switchTab("tab-admin");
+  } else {
+    switchTab("tab-home");
   }
 }
 
@@ -540,4 +538,191 @@ function initShreyanCatBot() {
     if (s.includes("joke") || s.includes("funny") || s.includes("laugh")) {
       return "Why was the cat sitting on the computer? Because it wanted to keep an eye on the mouse! 🐭😹";
     }
-    if (s.includes("fee") || s.includes("due") || s.includes("lock") || s.include
+    if (s.includes("fee") || s.includes("due") || s.includes("lock") || s.includes("pay")) {
+      return "If your assessment tab is locked, have your parents drop a quick WhatsApp message to Swati Ma'am to clear dues! 💬";
+    }
+    if (s.includes("who made") || s.includes("developer") || s.includes("creator") || s.includes("cat")) {
+      return "I was built exclusively for this tuition desk by <strong>ShreyanCat</strong>! 🐾⚡";
+    }
+    return "Meow! Got it. Check the Notice Board on your dashboard or ask Swati Ma'am during batch hours for more details! 🐾";
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const val = input.value.trim();
+    if (!val) return;
+    addMsg("user", val);
+    input.value = "";
+    setTimeout(() => addMsg("bot", getReply(val)), 350);
+  });
+
+  document.querySelectorAll(".chip-item").forEach(c => {
+    c.addEventListener("click", () => {
+      const q = c.getAttribute("data-q");
+      addMsg("user", c.textContent);
+      setTimeout(() => addMsg("bot", getReply(q)), 300);
+    });
+  });
+}
+
+// 11. Security Protection
+function initSecurity() {
+  document.addEventListener("contextmenu", e => e.preventDefault());
+  document.addEventListener("keydown", e => {
+    if ((e.ctrlKey || e.metaKey) && ["p", "s", "u"].includes(e.key.toLowerCase())) {
+      e.preventDefault();
+      alert("Copying and printing are disabled.");
+    }
+  });
+
+  const blurShield = document.getElementById("securityBlurScreen");
+  window.addEventListener("blur", () => { if (blurShield) blurShield.style.display = "flex"; });
+  window.addEventListener("focus", () => { if (blurShield) blurShield.style.display = "none"; });
+  document.addEventListener("visibilitychange", () => {
+    if (blurShield) blurShield.style.display = document.visibilityState === "hidden" ? "flex" : "none";
+  });
+}
+
+// 12. Main Bootstrapper
+document.addEventListener("DOMContentLoaded", () => {
+  initTheme();
+  initSecurity();
+  initPawTrail();
+  checkAuthAndRender();
+  initFeedback();
+  initShreyanCatBot();
+
+  const themeBtn = document.getElementById("themeToggleBtn");
+  if (themeBtn) themeBtn.addEventListener("click", toggleTheme);
+
+  document.querySelectorAll(".nav-tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => switchTab(btn.getAttribute("data-tab")));
+  });
+
+  const zoomIn = document.getElementById("zoomInBtn");
+  const zoomOut = document.getElementById("zoomOutBtn");
+  if (zoomIn) {
+    zoomIn.addEventListener("click", () => {
+      if (zoom < 3.0) {
+        zoom = Math.min(3.0, Math.round((zoom + 0.25) * 100) / 100);
+        document.getElementById("zoomLevel").textContent = `${Math.round(zoom * 100)}%`;
+        const docCanvas = document.getElementById("documentCanvas");
+        const markCanvas = document.getElementById("watermarkCanvas");
+        const docCtx = docCanvas.getContext("2d");
+        const markCtx = markCanvas.getContext("2d");
+        const session = getSession() || { name: "Student" };
+        renderPDFPage(currentPage, docCanvas, markCanvas, docCtx, markCtx, session);
+      }
+    });
+  }
+
+  if (zoomOut) {
+    zoomOut.addEventListener("click", () => {
+      if (zoom > 1.0) {
+        zoom = Math.max(1.0, Math.round((zoom - 0.25) * 100) / 100);
+        document.getElementById("zoomLevel").textContent = `${Math.round(zoom * 100)}%`;
+        const docCanvas = document.getElementById("documentCanvas");
+        const markCanvas = document.getElementById("watermarkCanvas");
+        const docCtx = docCanvas.getContext("2d");
+        const markCtx = markCanvas.getContext("2d");
+        const session = getSession() || { name: "Student" };
+        renderPDFPage(currentPage, docCanvas, markCanvas, docCtx, markCtx, session);
+      }
+    });
+  }
+
+  const prevBtn = document.getElementById("prevPageBtn");
+  const nextBtn = document.getElementById("nextPageBtn");
+  if (prevBtn) {
+    prevBtn.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        document.getElementById("currentPageNum").textContent = currentPage;
+        const docCanvas = document.getElementById("documentCanvas");
+        const markCanvas = document.getElementById("watermarkCanvas");
+        const docCtx = docCanvas.getContext("2d");
+        const markCtx = markCanvas.getContext("2d");
+        const session = getSession() || { name: "Student" };
+        renderPDFPage(currentPage, docCanvas, markCanvas, docCtx, markCtx, session);
+      }
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      if (pdfDoc && currentPage < pdfDoc.numPages) {
+        currentPage++;
+        document.getElementById("currentPageNum").textContent = currentPage;
+        const docCanvas = document.getElementById("documentCanvas");
+        const markCanvas = document.getElementById("watermarkCanvas");
+        const docCtx = docCanvas.getContext("2d");
+        const markCtx = markCanvas.getContext("2d");
+        const session = getSession() || { name: "Student" };
+        renderPDFPage(currentPage, docCanvas, markCanvas, docCtx, markCtx, session);
+      }
+    });
+  }
+
+  const discForm = document.getElementById("discussionForm");
+  if (discForm) {
+    discForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const topic = document.getElementById("discussionTopic").value.trim();
+      const content = document.getElementById("discussionContent").value.trim();
+      const session = getSession();
+      if (!topic || !content || !session) return;
+
+      const discussions = getDiscussions();
+      discussions.unshift({
+        id: "d_" + Date.now(),
+        author: session.name,
+        time: "Just now",
+        topic: topic,
+        content: content,
+        replies: []
+      });
+
+      localStorage.setItem("tuition_discussions_clean", JSON.stringify(discussions));
+      discForm.reset();
+      renderDiscussions();
+    });
+  }
+
+  const loginForm = document.getElementById("loginForm");
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("studentName").value.trim().toLowerCase();
+      const pass = document.getElementById("studentPass").value.trim();
+      const err = document.getElementById("authError");
+
+      const roster = await getLiveRoster();
+      const student = roster[name];
+
+      if (student && student.pin === pass) {
+        // Clear conflicting cached session keys
+        localStorage.removeItem("tuition_session_v5");
+        localStorage.setItem("tuition_session_clean", JSON.stringify({
+          id: name,
+          name: student.name,
+          feesPaid: student.feesPaid,
+          pendingMonths: student.pendingMonths
+        }));
+
+        await checkAuthAndRender();
+      } else {
+        err.textContent = "Invalid name or PIN. Please ask Swati Ma'am.";
+        err.style.display = "block";
+      }
+    });
+  }
+
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("tuition_session_clean");
+      localStorage.removeItem("tuition_session_v5");
+      checkAuthAndRender();
+    });
+  }
+});
