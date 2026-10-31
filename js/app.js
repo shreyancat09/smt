@@ -1,13 +1,12 @@
 /* ==========================================================================
-   TUITION STUDY PORTAL - ZERO-TOKEN MASTER ENGINE
+   TUITION STUDY PORTAL - ZERO-TOKEN MASTER ENGINE (EDITORIAL REVISION)
    Features:
-   - Fixed Home Screen Router on Login
-   - Dedicated Faculty Desk tab shown exclusively for Admin
-   - Live roster & paper catalog fetched directly from GitHub repository files
-   - Retina High-DPI Canvas Rendering with Dynamic Width Scaling (No 100% Clamp)
+   - High-DPI Canvas Rendering with Dynamic Width Scaling (No 100% Clamp)
    - Smooth Mobile Pinch-to-Zoom & Horizontal/Vertical Swiping (100% to 300%)
-   - Direct WhatsApp doubt routing (no server required)
-   - ShreyanCat Companion & Desktop Paw Trail
+   - Dedicated Faculty Desk for Admin
+   - Clean Session Routing (Direct entry to Overview / Faculty Desk)
+   - Direct WhatsApp Doubt Routing
+   - ShreyanCat Companion Talisman & Atmospheric Cursor Trail
    ========================================================================== */
 
 const SWATI_MAAM_PHONE = "91XXXXXXXXXX";
@@ -62,7 +61,7 @@ function initTheme() {
   const t = localStorage.getItem("tuition_theme") || "light";
   document.documentElement.setAttribute("data-theme", t);
   const btn = document.getElementById("themeToggleBtn");
-  if (btn) btn.textContent = t === "dark" ? "☀️ Light" : "🌙 Dark";
+  if (btn) btn.textContent = t === "dark" ? "☀️ Daylight" : "🌙 Nocturne";
 }
 
 function toggleTheme() {
@@ -71,7 +70,7 @@ function toggleTheme() {
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("tuition_theme", next);
   const btn = document.getElementById("themeToggleBtn");
-  if (btn) btn.textContent = next === "dark" ? "☀️ Light" : "🌙 Dark";
+  if (btn) btn.textContent = next === "dark" ? "☀️ Daylight" : "🌙 Nocturne";
 }
 
 // 4. Session Validation & Role-Based UI Rendering
@@ -88,7 +87,6 @@ async function checkAuthAndRender() {
     return;
   }
 
-  // Check live status
   const roster = await getLiveRoster();
   const liveStudent = roster[session.id];
   if (liveStudent) {
@@ -108,7 +106,7 @@ async function checkAuthAndRender() {
   document.querySelectorAll("#studentDisplay, #securityStudentTag").forEach(el => el.textContent = session.name);
   const greet = document.getElementById("welcomeGreeting");
   if (greet) {
-    greet.textContent = isAdmin ? "Welcome Swati Ma'am!" : `Welcome back, ${session.name}!`;
+    greet.textContent = isAdmin ? "Welcome, Swati Ma'am" : `Welcome back, ${session.name}`;
   }
 
   const homeUnlocked = document.getElementById("homeUnlockedView");
@@ -123,14 +121,13 @@ async function checkAuthAndRender() {
     if (homeUnlocked) homeUnlocked.style.display = "none";
     if (feeCard) feeCard.style.display = "block";
     if (feeMsg) {
-      feeMsg.innerHTML = `Hello <strong>${session.name}</strong>, your evaluation portal is temporarily on hold because tuition fees for <strong>${session.pendingMonths || "recent months"}</strong> are pending.<br><br>Please clear dues with Swati Ma'am to unlock.`;
+      feeMsg.innerHTML = `Greetings, <strong>${session.name}</strong>. Examination portal access is temporarily paused as tuition dues for <strong>${session.pendingMonths || "recent sessions"}</strong> remain pending.<br><br>Please clear dues with Swati Ma'am to restore full folio access.`;
     }
     if (feeWaBtn) {
       feeWaBtn.href = `https://wa.me/${SWATI_MAAM_PHONE}?text=${encodeURIComponent("Hello Swati Ma'am, I am " + session.name + ". I am writing regarding my pending tuition fees.")}`;
     }
   }
 
-  // Navigate to appropriate starting tab
   if (isAdmin) {
     switchTab("tab-admin");
   } else {
@@ -143,7 +140,7 @@ async function renderAdminRoster() {
   const tbody = document.getElementById("adminRosterTbody");
   if (!tbody) return;
 
-  tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Fetching directory...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Fetching registry directory...</td></tr>`;
   const roster = await getLiveRoster();
 
   tbody.innerHTML = "";
@@ -152,12 +149,12 @@ async function renderAdminRoster() {
     const tr = document.createElement("tr");
 
     const statusBadge = student.feesPaid
-      ? `<span style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; padding: 0.2rem 0.55rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">✅ Paid (Unlocked)</span>`
-      : `<span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 0.2rem 0.55rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">❌ Dues Pending (Locked)</span>`;
+      ? `<span style="background: rgba(27, 102, 62, 0.1); color: var(--emerald-seal); border: 1px solid rgba(27, 102, 62, 0.25); padding: 0.25rem 0.65rem; border-radius: 4px; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.04em;">ACTIVE</span>`
+      : `<span style="background: rgba(153, 27, 27, 0.1); color: var(--crimson-seal); border: 1px solid rgba(153, 27, 27, 0.25); padding: 0.25rem 0.65rem; border-radius: 4px; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.04em;">LOCKED</span>`;
 
     tr.innerHTML = `
       <td><strong>${student.name}</strong></td>
-      <td><code>${student.pin}</code></td>
+      <td><code style="background: var(--bg-surface-elevated); padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid var(--border-hairline);">${student.pin}</code></td>
       <td>${statusBadge}</td>
       <td><small style="color: var(--text-muted);">${student.pendingMonths || "None"}</small></td>
     `;
@@ -165,18 +162,18 @@ async function renderAdminRoster() {
   }
 }
 
-// 6. Desktop-Only Cat Paw Trail Effect
+// 6. Atmospheric Desktop Cursor Trail
 function initPawTrail() {
   if (window.matchMedia("(pointer: fine)").matches && window.innerWidth > 768) {
     let lastTime = 0;
     document.addEventListener("mousemove", (e) => {
       const now = Date.now();
-      if (now - lastTime < 70) return;
+      if (now - lastTime < 75) return;
       lastTime = now;
 
       const paw = document.createElement("span");
       paw.className = "floating-paw";
-      paw.textContent = "🐾";
+      paw.textContent = "⚜️";
       
       const rot = (Math.random() * 40 - 20);
       paw.style.left = `${e.clientX}px`;
@@ -184,7 +181,7 @@ function initPawTrail() {
       paw.style.transform = `translate(-50%, -50%) rotate(${rot}deg) scale(${0.7 + Math.random() * 0.4})`;
 
       document.body.appendChild(paw);
-      setTimeout(() => paw.remove(), 850);
+      setTimeout(() => paw.remove(), 900);
     });
   }
 }
@@ -195,10 +192,10 @@ const INITIAL_DISCUSSIONS = [
     id: "d1",
     author: "Shreyan",
     time: "Today at 4:15 PM",
-    topic: "Tips for Class 10 History Timeline Questions",
-    content: "Remember that the Rowlatt Act is 1919 and Non-Cooperation was launched in 1920. Don't mix up the dates in Section A!",
+    topic: "Key Dates for Class 10 History Timeline",
+    content: "Keep in mind that the Rowlatt Act is 1919 and Non-Cooperation was formally adopted in 1920. Avoid conflating the timeline in Section A.",
     replies: [
-      { author: "Adrita", text: "Thanks! Also Chauri Chaura incident occurred in Feb 1922 which ended it." }
+      { author: "Adrita", text: "Important addition: the Chauri Chaura incident occurred in Feb 1922 which triggered its withdrawal." }
     ]
   },
   {
@@ -206,9 +203,9 @@ const INITIAL_DISCUSSIONS = [
     author: "Progyan",
     time: "Yesterday at 6:30 PM",
     topic: "Map Practice for Sunday Assessment",
-    content: "Are we being tested on major iron ore belts or dams this weekend?",
+    content: "Are we being evaluated on major iron ore deposits or river dams this coming Sunday?",
     replies: [
-      { author: "Ayushman", text: "Ma'am mentioned dams and major soil types will be on the 5-mark map section." }
+      { author: "Ayushman", text: "Ma'am noted that major dam locations and soil classifications will headline the 5-mark cartography portion." }
     ]
   }
 ];
@@ -240,7 +237,7 @@ function renderDiscussions() {
 
     card.innerHTML = `
       <div class="discussion-meta">
-        <span class="author-badge">🐱 ${item.author}</span>
+        <span class="author-badge">⚜️ ${item.author}</span>
         <span class="time-badge">${item.time}</span>
       </div>
       <h3 class="discussion-title">${item.topic}</h3>
@@ -251,7 +248,7 @@ function renderDiscussions() {
       </div>
 
       <form class="reply-form" data-id="${item.id}">
-        <input type="text" placeholder="Write a reply..." required>
+        <input type="text" placeholder="Offer your academic reply..." required>
         <button type="submit" class="btn btn-outline-sm">Reply</button>
       </form>
     `;
@@ -279,7 +276,7 @@ function renderDiscussions() {
   });
 }
 
-// 8. Student Notes Routing Directly to WhatsApp
+// 8. WhatsApp Routing
 function initFeedback() {
   const form = document.getElementById("feedbackForm");
   if (!form) return;
@@ -290,13 +287,13 @@ function initFeedback() {
     const session = getSession();
     if (!text || !session) return;
 
-    const waUrl = `https://wa.me/${SWATI_MAAM_PHONE}?text=${encodeURIComponent("Student Doubt from " + session.name + ":\n" + text)}`;
+    const waUrl = `https://wa.me/${SWATI_MAAM_PHONE}?text=${encodeURIComponent("Academic Note from " + session.name + ":\n" + text)}`;
     window.open(waUrl, "_blank");
     form.reset();
   });
 }
 
-// 9. PDF.js Viewer with High-DPI Canvas Sharpening, Zoom (up to 300%) & Pinch
+// 9. PDF.js Archival Viewer (Up to 300% Zoom + Pinch Support)
 let pdfDoc = null;
 let currentPage = 1;
 let zoom = 1.0;
@@ -358,14 +355,12 @@ async function loadSelectedPDF(filePath) {
   } catch (err) {
     docCanvas.width = 600;
     docCanvas.height = 300;
-    docCanvas.style.width = "100%";
-    docCanvas.style.height = "auto";
-    docCtx.fillStyle = "#ffffff";
+    docCtx.fillStyle = "#1e2638";
     docCtx.fillRect(0, 0, 600, 300);
-    docCtx.fillStyle = "#64748b";
-    docCtx.font = "16px sans-serif";
+    docCtx.fillStyle = "#9ba6b5";
+    docCtx.font = "15px 'Playfair Display', Georgia, serif";
     docCtx.textAlign = "center";
-    docCtx.fillText("Selected test paper will be available shortly.", 300, 150);
+    docCtx.fillText("Archival examination folio will be available shortly.", 300, 150);
   }
 }
 
@@ -396,16 +391,17 @@ async function renderPDFPage(pageNum, docCanvas, markCanvas, docCtx, markCtx, se
 
   await page.render({ canvasContext: docCtx, viewport: renderViewport }).promise;
 
+  // Stamped watermark
   markCtx.clearRect(0, 0, markCanvas.width, markCanvas.height);
   markCtx.save();
   markCtx.rotate((-25 * Math.PI) / 180);
-  markCtx.font = `bold ${24 * dpr}px sans-serif`;
-  markCtx.fillStyle = "rgba(220, 38, 38, 0.13)";
+  markCtx.font = `600 ${23 * dpr}px 'Cinzel', serif`;
+  markCtx.fillStyle = "rgba(180, 140, 50, 0.16)";
   markCtx.textAlign = "center";
 
-  const stamp = `${session.name.toUpperCase()} • PRIVATE ASSESSMENT • CONFIDENTIAL`;
-  const stepX = 360 * dpr;
-  const stepY = 220 * dpr;
+  const stamp = `${session.name.toUpperCase()} • PRIVATE FOLIO • UNLICENSED REPRODUCTION PROHIBITED`;
+  const stepX = 400 * dpr;
+  const stepY = 240 * dpr;
 
   for (let x = -markCanvas.width; x < markCanvas.width * 2; x += stepX) {
     for (let y = -markCanvas.height; y < markCanvas.height * 2; y += stepY) {
@@ -458,19 +454,17 @@ function initPinchToZoom() {
   }, { passive: true });
 
   container.addEventListener("touchend", (e) => {
-    if (e.touches.length < 2) {
-      isPinching = false;
-    }
+    if (e.touches.length < 2) isPinching = false;
   });
 }
 
-// 10. ShreyanCat Interactive Assistant Widget
+// 10. ShreyanCat Companion Talisman
 function initShreyanCatBot() {
   const botHost = document.createElement("div");
   botHost.id = "shreyanCatWidget";
   botHost.innerHTML = `
-    <div id="catBubbleBtn" class="cat-floating-bubble" title="Talk to ShreyanCat!">
-      <span class="cat-face-icon">🐱</span>
+    <div id="catBubbleBtn" class="cat-floating-bubble" title="Summon ShreyanCat">
+      <span class="cat-face-icon">⚜️</span>
       <span class="cat-active-beacon"></span>
     </div>
 
@@ -480,7 +474,7 @@ function initShreyanCatBot() {
           <span>🐾</span>
           <div>
             <strong>ShreyanCat</strong>
-            <small>Classroom AI Companion</small>
+            <small>Atelier Academic Assistant</small>
           </div>
         </div>
         <button id="catCloseBtn" class="cat-close-btn">&times;</button>
@@ -488,19 +482,19 @@ function initShreyanCatBot() {
 
       <div class="cat-chat-body" id="catChatBody">
         <div class="cat-msg bot">
-          Purr! 🐾 I am <strong>ShreyanCat</strong>! How can I help with your study routine or tuition batches today?
+          Welcome to the atelier! 🐾 I am <strong>ShreyanCat</strong>. How may I assist your examination routine or batch timetable today?
         </div>
       </div>
 
       <div class="cat-chips-bar">
         <button class="chip-item" data-q="batch">Class Timings</button>
-        <button class="chip-item" data-q="paper">Weekly Test</button>
-        <button class="chip-item" data-q="joke">Cat Joke</button>
+        <button class="chip-item" data-q="paper">Weekly Folios</button>
+        <button class="chip-item" data-q="joke">Cat Wit</button>
         <button class="chip-item" data-q="fees">Fees Info</button>
       </div>
 
       <form id="catChatForm" class="cat-input-bar">
-        <input type="text" id="catInput" placeholder="Ask ShreyanCat a question..." autocomplete="off">
+        <input type="text" id="catInput" placeholder="Consult ShreyanCat..." autocomplete="off">
         <button type="submit" class="cat-send-btn">&rarr;</button>
       </form>
     </div>
@@ -530,21 +524,21 @@ function initShreyanCatBot() {
   function getReply(q) {
     const s = q.toLowerCase();
     if (s.includes("batch") || s.includes("time") || s.includes("timing") || s.includes("schedule")) {
-      return "Class batches meet Tuesday & Friday (5:00 PM) or Wednesday & Saturday (5:30 PM). Sunday is test & doubt clearing at 9:00 AM! 🐾";
+      return "Class batches assemble Tuesday & Friday (5:00 PM) or Wednesday & Saturday (5:30 PM). Sunday assessment sessions start at 9:00 AM sharp! ⚜️";
     }
     if (s.includes("paper") || s.includes("test") || s.includes("exam") || s.includes("omr")) {
-      return "Weekly mock papers are in the <strong>Sample Paper</strong> tab! Check questions on-screen and bring your blank 50-mark OMR sheets on Sunday.";
+      return "Examination folios are accessible under the <strong>Assessment Paper</strong> tab. Review on-screen and bring blank 50-mark OMR sheets on Sunday.";
     }
     if (s.includes("joke") || s.includes("funny") || s.includes("laugh")) {
-      return "Why was the cat sitting on the computer? Because it wanted to keep an eye on the mouse! 🐭😹";
+      return "Why did the cat sit on the parchment? It wanted to leave an indelible impression. 🐾📜";
     }
     if (s.includes("fee") || s.includes("due") || s.includes("lock") || s.includes("pay")) {
-      return "If your assessment tab is locked, have your parents drop a quick WhatsApp message to Swati Ma'am to clear dues! 💬";
+      return "If access to question folios is on hold, ask your parents to drop a quick WhatsApp note to Swati Ma'am to update the ledger! 💬";
     }
     if (s.includes("who made") || s.includes("developer") || s.includes("creator") || s.includes("cat")) {
-      return "I was built exclusively for this tuition desk by <strong>ShreyanCat</strong>! 🐾⚡";
+      return "This study salon was custom crafted by <strong>ShreyanCat</strong>! 🐾⚡";
     }
-    return "Meow! Got it. Check the Notice Board on your dashboard or ask Swati Ma'am during batch hours for more details! 🐾";
+    return "Noted. Check the class notice plinth on your overview desk or consult Swati Ma'am during batch hours. ⚜️";
   }
 
   form.addEventListener("submit", (e) => {
@@ -553,14 +547,14 @@ function initShreyanCatBot() {
     if (!val) return;
     addMsg("user", val);
     input.value = "";
-    setTimeout(() => addMsg("bot", getReply(val)), 350);
+    setTimeout(() => addMsg("bot", getReply(val)), 300);
   });
 
   document.querySelectorAll(".chip-item").forEach(c => {
     c.addEventListener("click", () => {
       const q = c.getAttribute("data-q");
       addMsg("user", c.textContent);
-      setTimeout(() => addMsg("bot", getReply(q)), 300);
+      setTimeout(() => addMsg("bot", getReply(q)), 250);
     });
   });
 }
@@ -571,7 +565,7 @@ function initSecurity() {
   document.addEventListener("keydown", e => {
     if ((e.ctrlKey || e.metaKey) && ["p", "s", "u"].includes(e.key.toLowerCase())) {
       e.preventDefault();
-      alert("Copying and printing are disabled.");
+      alert("Folio reproduction and printing are restricted.");
     }
   });
 
@@ -700,7 +694,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const student = roster[name];
 
       if (student && student.pin === pass) {
-        // Clear conflicting cached session keys
         localStorage.removeItem("tuition_session_v5");
         localStorage.setItem("tuition_session_clean", JSON.stringify({
           id: name,
@@ -711,7 +704,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await checkAuthAndRender();
       } else {
-        err.textContent = "Invalid name or PIN. Please ask Swati Ma'am.";
+        err.textContent = "Invalid identity or PIN key. Please consult Swati Ma'am.";
         err.style.display = "block";
       }
     });
