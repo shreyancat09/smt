@@ -9,7 +9,7 @@
    - ShreyanCat Companion Talisman & Atmospheric Cursor Trail
    ========================================================================== */
 
-const SWATI_MAAM_PHONE = "91XXXXXXXXXX";
+const SWATI_MAAM_PHONE = "918910337293";
 
 // 1. Live Global Roster Fetch
 async function getLiveRoster() {
@@ -61,7 +61,7 @@ function initTheme() {
   const t = localStorage.getItem("tuition_theme") || "light";
   document.documentElement.setAttribute("data-theme", t);
   const btn = document.getElementById("themeToggleBtn");
-  if (btn) btn.textContent = t === "dark" ? "☀️ Daylight" : "🌙 Nocturne";
+  if (btn) btn.textContent = t === "dark" ? "☀️ Daylight" : "🌙 DAAARK";
 }
 
 function toggleTheme() {
@@ -70,7 +70,7 @@ function toggleTheme() {
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("tuition_theme", next);
   const btn = document.getElementById("themeToggleBtn");
-  if (btn) btn.textContent = next === "dark" ? "☀️ Daylight" : "🌙 Nocturne";
+  if (btn) btn.textContent = next === "dark" ? "☀️ Daylight" : "🌙 DAAARK";
 }
 
 // 4. Session Validation & Role-Based UI Rendering
@@ -195,17 +195,17 @@ const INITIAL_DISCUSSIONS = [
     topic: "Key Dates for Class 10 History Timeline",
     content: "Keep in mind that the Rowlatt Act is 1919 and Non-Cooperation was formally adopted in 1920. Avoid conflating the timeline in Section A.",
     replies: [
-      { author: "Adrita", text: "Important addition: the Chauri Chaura incident occurred in Feb 1922 which triggered its withdrawal." }
+      { author: "user_naam bola jabe na", text: "Important addition: the Chauri Chaura incident occurred in Feb 1922 which triggered its withdrawal." }
     ]
   },
   {
     id: "d2",
-    author: "Progyan",
+    author: "rishita",
     time: "Yesterday at 6:30 PM",
     topic: "Map Practice for Sunday Assessment",
     content: "Are we being evaluated on major iron ore deposits or river dams this coming Sunday?",
     replies: [
-      { author: "Ayushman", text: "Ma'am noted that major dam locations and soil classifications will headline the 5-mark cartography portion." }
+      { author: "Progyan", text: "Ma'am noted that major dam locations and soil classifications will headline the 5-mark cartography portion." }
     ]
   }
 ];
@@ -524,21 +524,21 @@ function initShreyanCatBot() {
   function getReply(q) {
     const s = q.toLowerCase();
     if (s.includes("batch") || s.includes("time") || s.includes("timing") || s.includes("schedule")) {
-      return "Class batches assemble Tuesday & Friday (5:00 PM) or Wednesday & Saturday (5:30 PM). Sunday assessment sessions start at 9:00 AM sharp! ⚜️";
+      return "Class batches assemble Monday & Friday or Tuesday & Saturday.Meowwwww";
     }
     if (s.includes("paper") || s.includes("test") || s.includes("exam") || s.includes("omr")) {
-      return "Examination folios are accessible under the <strong>Assessment Paper</strong> tab. Review on-screen and bring blank 50-mark OMR sheets on Sunday.";
+      return "Examination folios are accessible under the <strong>Assessment Paper</strong> tab. Review on-screen and STUDY.Porashona korun..meoww";
     }
     if (s.includes("joke") || s.includes("funny") || s.includes("laugh")) {
       return "Why did the cat sit on the parchment? It wanted to leave an indelible impression. 🐾📜";
     }
     if (s.includes("fee") || s.includes("due") || s.includes("lock") || s.includes("pay")) {
-      return "If access to question folios is on hold, ask your parents to drop a quick WhatsApp note to Swati Ma'am to update the ledger! 💬";
+      return "If access to question pdf is on hold, drop a quick WhatsApp note to ShreyanCat to update the ledger! Meowwww";
     }
     if (s.includes("who made") || s.includes("developer") || s.includes("creator") || s.includes("cat")) {
-      return "This study salon was custom crafted by <strong>ShreyanCat</strong>! 🐾⚡";
+      return "This study portal was custom crafted by <strong>ShreyanCat</strong>! 🐾Don't dare think this is AI made,becuz it is not...";
     }
-    return "Noted. Check the class notice plinth on your overview desk or consult Swati Ma'am during batch hours. ⚜️";
+    return "Noted. Check the class notice board on your overview desk or ask Swati Ma'am during batch hours.Meowww!";
   }
 
   form.addEventListener("submit", (e) => {
