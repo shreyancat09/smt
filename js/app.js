@@ -561,20 +561,38 @@ function initShreyanCatBot() {
 
 // 11. Security Protection
 function initSecurity() {
-  document.addEventListener("contextmenu", e => e.preventDefault());
-  document.addEventListener("keydown", e => {
-    if ((e.ctrlKey || e.metaKey) && ["p", "s", "u"].includes(e.key.toLowerCase())) {
-      e.preventDefault();
-      alert("Folio reproduction and printing are restricted.");
+  const canvasBox = document.getElementById("canvasViewport");
+  const blurShield = document.getElementById("securityBlurScreen");
+
+  if (!canvasBox || !blurShield) return;
+
+  // Keep screen black by default
+  blurShield.style.display = "flex";
+  blurShield.innerHTML = `
+    <div style="text-align: center; color: #fff; padding: 1.5rem;">
+      <p style="font-size: 1.8rem; margin-bottom: 0.5rem;">👆</p>
+      <p style="font-size: 1.1rem; font-weight: bold; margin-bottom: 0.3rem;">Press & Hold to Read</p>
+      <p style="font-size: 0.8rem; color: #94a3b8;">Lifting finger snaps screen black to protect assessment content.</p>
+    </div>
+  `;
+
+  // Reveal only while finger is actively held down
+  canvasBox.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 1) {
+      blurShield.style.display = "none";
     }
+  }, { passive: true });
+
+  // Snap black the millisecond finger moves away or lifts
+  ["touchend", "touchcancel"].forEach(evt => {
+    canvasBox.addEventListener(evt, () => {
+      blurShield.style.display = "flex";
+    }, { passive: true });
   });
 
-  const blurShield = document.getElementById("securityBlurScreen");
-  window.addEventListener("blur", () => { if (blurShield) blurShield.style.display = "flex"; });
-  window.addEventListener("focus", () => { if (blurShield) blurShield.style.display = "none"; });
-  document.addEventListener("visibilitychange", () => {
-    if (blurShield) blurShield.style.display = document.visibilityState === "hidden" ? "flex" : "none";
-  });
+  // Block right-clicks and PC screenshot keys
+  document.addEventListener("contextmenu", e => e.preventDefault());
+  window.addEventListener("blur", () => { blurShield.style.display = "flex"; });
 }
 
 // 12. Main Bootstrapper
