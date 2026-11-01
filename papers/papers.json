@@ -1,12 +1,17 @@
 [
   {
     "id": "paper_1",
-    "title": "qp 26/10",
+    "title": "QP 25/10",
     "file": "papers/10 q ssc.pdf"
   },
   {
     "id": "paper_2",
-    "title": "Qp 31/10",
+    "title": "QP 31-10-26",
     "file": "papers/q 10 ssc.pdf"
+  },
+  {
+    "id": "paper_3",
+    "title": "31-10-26 MS",
+    "file": "papers/31-10-26 MS.pdf"
   }
 ]
