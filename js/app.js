@@ -34,7 +34,7 @@ function getSession() {
 function switchTab(tabId) {
   const session = getSession();
   if (session && !session.feesPaid && tabId !== "tab-home" && tabId !== "tab-contact") {
-    alert("Portal access is paused. Please clear dues with Swati Ma'am.");
+    alert("You are blocked. For more info, contact ShreyanCat");
     return;
   }
 
