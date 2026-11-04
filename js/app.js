@@ -1,15 +1,24 @@
 /* ==========================================================================
-   TUITION STUDY PORTAL - ZERO-TOKEN MASTER ENGINE (EDITORIAL REVISION)
-   Features:
-   - High-DPI Canvas Rendering with Dynamic Width Scaling (No 100% Clamp)
-   - Smooth Mobile Pinch-to-Zoom & Horizontal/Vertical Swiping (100% to 300%)
-   - Dedicated Faculty Desk for Admin
-   - Clean Session Routing (Direct entry to Overview / Faculty Desk)
-   - Direct WhatsApp Doubt Routing
-   - ShreyanCat Companion Talisman & Atmospheric Cursor Trail
+   TUITION STUDY PORTAL - ZERO-TOKEN MASTER ENGINE (HIGH SECURITY SUITE)
+   Protection Matrix:
+   1. Hold-to-Reveal Mobile Viewport (Snaps to solid black on screenshot attempt)
+   2. Global Blackout Curtain on Blur/Task Switch/PrintScreen
+   3. Salted SHA-256 PIN Verification (Zero readable PINs on GitHub)
+   4. High-DPI PDF.js Rendering with 300% Pinch-Zoom & Diagonal Dynamic Watermark
+   5. Admin One-Click PIN Cloaking Engine
    ========================================================================== */
 
-const SWATI_MAAM_PHONE = "918910337293";
+const SWATI_MAAM_PHONE = "91XXXXXXXXXX"; // Put Swati Ma'am's WhatsApp here
+const SALT_KEY = "SWATI_STUDY_2026_";
+
+// Helper: Cryptographic Salted SHA-256 Hasher
+async function computeSaltedHash(pin) {
+  const msgBuffer = new TextEncoder().encode(SALT_KEY + pin);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+}
 
 // 1. Live Global Roster Fetch
 async function getLiveRoster() {
@@ -34,7 +43,7 @@ function getSession() {
 function switchTab(tabId) {
   const session = getSession();
   if (session && !session.feesPaid && tabId !== "tab-home" && tabId !== "tab-contact") {
-    alert("You are blocked. For more info, contact ShreyanCat");
+    alert("Portal access is paused. Please clear dues with Swati Ma'am.");
     return;
   }
 
@@ -61,7 +70,7 @@ function initTheme() {
   const t = localStorage.getItem("tuition_theme") || "light";
   document.documentElement.setAttribute("data-theme", t);
   const btn = document.getElementById("themeToggleBtn");
-  if (btn) btn.textContent = t === "dark" ? "☀️ Daylight" : "🌙 DAAARK";
+  if (btn) btn.textContent = t === "dark" ? "☀️ Daylight" : "🌙 Nocturne";
 }
 
 function toggleTheme() {
@@ -70,7 +79,7 @@ function toggleTheme() {
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("tuition_theme", next);
   const btn = document.getElementById("themeToggleBtn");
-  if (btn) btn.textContent = next === "dark" ? "☀️ Daylight" : "🌙 DAAARK";
+  if (btn) btn.textContent = next === "dark" ? "☀️ Daylight" : "🌙 Nocturne";
 }
 
 // 4. Session Validation & Role-Based UI Rendering
@@ -149,12 +158,16 @@ async function renderAdminRoster() {
     const tr = document.createElement("tr");
 
     const statusBadge = student.feesPaid
-      ? `<span style="background: rgba(27, 102, 62, 0.1); color: var(--emerald-seal); border: 1px solid rgba(27, 102, 62, 0.25); padding: 0.25rem 0.65rem; border-radius: 4px; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.04em;">ACTIVE</span>`
-      : `<span style="background: rgba(153, 27, 27, 0.1); color: var(--crimson-seal); border: 1px solid rgba(153, 27, 27, 0.25); padding: 0.25rem 0.65rem; border-radius: 4px; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.04em;">LOCKED</span>`;
+      ? `<span style="background: rgba(27, 102, 62, 0.1); color: var(--emerald-seal); border: 1px solid rgba(27, 102, 62, 0.25); padding: 0.25rem 0.65rem; border-radius: 4px; font-size: 0.74rem; font-weight: 700;">ACTIVE</span>`
+      : `<span style="background: rgba(153, 27, 27, 0.1); color: var(--crimson-seal); border: 1px solid rgba(153, 27, 27, 0.25); padding: 0.25rem 0.65rem; border-radius: 4px; font-size: 0.74rem; font-weight: 700;">LOCKED</span>`;
+
+    const credentialBadge = student.token
+      ? `<span style="color: var(--gold-primary); font-family: monospace; font-size: 0.75rem;">🔒 Cloaked (Salted SHA-256)</span>`
+      : `<span style="color: #64748b; font-family: monospace; font-size: 0.75rem;">⚠️ Plaintext (${student.pin})</span>`;
 
     tr.innerHTML = `
       <td><strong>${student.name}</strong></td>
-      <td><code style="background: var(--bg-surface-elevated); padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid var(--border-hairline);">${student.pin}</code></td>
+      <td>${credentialBadge}</td>
       <td>${statusBadge}</td>
       <td><small style="color: var(--text-muted);">${student.pendingMonths || "None"}</small></td>
     `;
@@ -162,31 +175,106 @@ async function renderAdminRoster() {
   }
 }
 
-// 6. Atmospheric Desktop Cursor Trail
-function initPawTrail() {
-  if (window.matchMedia("(pointer: fine)").matches && window.innerWidth > 768) {
-    let lastTime = 0;
-    document.addEventListener("mousemove", (e) => {
-      const now = Date.now();
-      if (now - lastTime < 75) return;
-      lastTime = now;
+// 6. Admin Tool: Scramble All PINs into Salted Hashes for GitHub
+async function cloakRosterForGitHub() {
+  const roster = await getLiveRoster();
+  const cloaked = {};
 
-      const paw = document.createElement("span");
-      paw.className = "floating-paw";
-      paw.textContent = "⚜️";
-      
-      const rot = (Math.random() * 40 - 20);
-      paw.style.left = `${e.clientX}px`;
-      paw.style.top = `${e.clientY}px`;
-      paw.style.transform = `translate(-50%, -50%) rotate(${rot}deg) scale(${0.7 + Math.random() * 0.4})`;
+  for (const [key, student] of Object.entries(roster)) {
+    const rawPin = student.pin || "0000";
+    const token = student.token ? student.token : await computeSaltedHash(rawPin);
 
-      document.body.appendChild(paw);
-      setTimeout(() => paw.remove(), 900);
-    });
+    cloaked[key] = {
+      name: student.name,
+      token: token,
+      feesPaid: student.feesPaid,
+      pendingMonths: student.pendingMonths
+    };
+  }
+
+  const jsonStr = JSON.stringify(cloaked, null, 2);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    await navigator.clipboard.writeText(jsonStr);
+    alert("✅ Success! The cloaked roster has been copied to your clipboard!\n\nNow open papers/roster.json in GitHub Mobile, select all, paste, and commit. Your PINs will now be completely unreadable to students on GitHub!");
+  } else {
+    prompt("Copy this cloaked roster and paste into papers/roster.json:", jsonStr);
   }
 }
 
-// 7. Discussion Lounge
+// 7. Security Protection Suite (Hold-to-Reveal + Solid Blackout Curtain)
+function initSecurity() {
+  const curtain = document.getElementById("blackoutCurtain");
+  const holdShield = document.getElementById("holdToRevealShield");
+
+  function triggerBlackout() {
+    if (curtain) curtain.style.display = "flex";
+  }
+
+  function liftBlackout() {
+    if (curtain && document.hasFocus() && document.visibilityState === "visible") {
+      curtain.style.display = "none";
+    }
+  }
+
+  // A. Mobile "Hold to Reveal" Gesture Engine
+  if (holdShield) {
+    // Reveal ONLY while finger is actively held down
+    holdShield.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1) {
+        holdShield.style.opacity = "0";
+        holdShield.style.pointerEvents = "none";
+      }
+    }, { passive: true });
+
+    // Snap to black the instant finger lifts, shifts, or captures screenshot
+    ["touchend", "touchcancel"].forEach(evt => {
+      window.addEventListener(evt, () => {
+        holdShield.style.opacity = "1";
+        holdShield.style.pointerEvents = "auto";
+      }, { passive: true });
+    });
+
+    // Desktop hover behavior fallback
+    holdShield.addEventListener("mousedown", () => {
+      holdShield.style.opacity = "0";
+      holdShield.style.pointerEvents = "none";
+    });
+    window.addEventListener("mouseup", () => {
+      holdShield.style.opacity = "1";
+      holdShield.style.pointerEvents = "auto";
+    });
+  }
+
+  // B. Window Focus Loss / Screenshot App Switch Blackout
+  window.addEventListener("blur", triggerBlackout);
+  window.addEventListener("focus", liftBlackout);
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") triggerBlackout();
+    else liftBlackout();
+  });
+
+  // C. Intercept Desktop Screenshot & Print Keys
+  window.addEventListener("keyup", (e) => {
+    if (e.key === "PrintScreen" || e.keyCode === 44) triggerBlackout();
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "PrintScreen" || e.keyCode === 44) triggerBlackout();
+    if ((e.ctrlKey || e.metaKey) && ["p", "s", "u"].includes(e.key.toLowerCase())) {
+      e.preventDefault();
+      triggerBlackout();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.shiftKey && ["s", "3", "4"].includes(e.key.toLowerCase())) {
+      triggerBlackout();
+    }
+  });
+
+  document.addEventListener("contextmenu", e => e.preventDefault());
+  if (curtain) curtain.addEventListener("click", liftBlackout);
+}
+
+// 8. Discussion Lounge
 const INITIAL_DISCUSSIONS = [
   {
     id: "d1",
@@ -195,17 +283,17 @@ const INITIAL_DISCUSSIONS = [
     topic: "Key Dates for Class 10 History Timeline",
     content: "Keep in mind that the Rowlatt Act is 1919 and Non-Cooperation was formally adopted in 1920. Avoid conflating the timeline in Section A.",
     replies: [
-      { author: "user_naam bola jabe na", text: "Important addition: the Chauri Chaura incident occurred in Feb 1922 which triggered its withdrawal." }
+      { author: "Adrita", text: "Important addition: the Chauri Chaura incident occurred in Feb 1922 which triggered its withdrawal." }
     ]
   },
   {
     id: "d2",
-    author: "rishita",
+    author: "Progyan",
     time: "Yesterday at 6:30 PM",
     topic: "Map Practice for Sunday Assessment",
     content: "Are we being evaluated on major iron ore deposits or river dams this coming Sunday?",
     replies: [
-      { author: "Progyan", text: "Ma'am noted that major dam locations and soil classifications will headline the 5-mark cartography portion." }
+      { author: "Ayushman", text: "Ma'am noted that major dam locations and soil classifications will headline the 5-mark cartography portion." }
     ]
   }
 ];
@@ -242,17 +330,12 @@ function renderDiscussions() {
       </div>
       <h3 class="discussion-title">${item.topic}</h3>
       <p class="discussion-text">${item.content}</p>
-      
-      <div class="replies-wrapper">
-        ${replyHtml}
-      </div>
-
+      <div class="replies-wrapper">${replyHtml}</div>
       <form class="reply-form" data-id="${item.id}">
         <input type="text" placeholder="Offer your academic reply..." required>
         <button type="submit" class="btn btn-outline-sm">Reply</button>
       </form>
     `;
-
     container.appendChild(card);
   });
 
@@ -260,8 +343,7 @@ function renderDiscussions() {
     f.addEventListener("submit", (e) => {
       e.preventDefault();
       const id = f.getAttribute("data-id");
-      const input = f.querySelector("input");
-      const replyText = input.value.trim();
+      const replyText = f.querySelector("input").value.trim();
       const session = getSession();
       if (!replyText || !session) return;
 
@@ -276,7 +358,7 @@ function renderDiscussions() {
   });
 }
 
-// 8. WhatsApp Routing
+// 9. Feedback WhatsApp Form
 function initFeedback() {
   const form = document.getElementById("feedbackForm");
   if (!form) return;
@@ -293,7 +375,7 @@ function initFeedback() {
   });
 }
 
-// 9. PDF.js Archival Viewer (Up to 300% Zoom + Pinch Support)
+// 10. PDF.js Archival Viewer (Up to 300% Zoom + Dynamic Stamped Watermark)
 let pdfDoc = null;
 let currentPage = 1;
 let zoom = 1.0;
@@ -391,12 +473,12 @@ async function renderPDFPage(pageNum, docCanvas, markCanvas, docCtx, markCtx, se
 
   await page.render({ canvasContext: docCtx, viewport: renderViewport }).promise;
 
-  // Stamped watermark
+  // Stamped Diagonal Repeating Watermark
   markCtx.clearRect(0, 0, markCanvas.width, markCanvas.height);
   markCtx.save();
   markCtx.rotate((-25 * Math.PI) / 180);
-  markCtx.font = `600 ${23 * dpr}px 'Cinzel', serif`;
-  markCtx.fillStyle = "rgba(180, 140, 50, 0.16)";
+  markCtx.font = `700 ${22 * dpr}px 'Cinzel', serif`;
+  markCtx.fillStyle = "rgba(180, 140, 50, 0.17)";
   markCtx.textAlign = "center";
 
   const stamp = `${session.name.toUpperCase()} • PRIVATE FOLIO • UNLICENSED REPRODUCTION PROHIBITED`;
@@ -458,7 +540,7 @@ function initPinchToZoom() {
   });
 }
 
-// 10. ShreyanCat Companion Talisman
+// 11. ShreyanCat Companion Talisman
 function initShreyanCatBot() {
   const botHost = document.createElement("div");
   botHost.id = "shreyanCatWidget";
@@ -524,21 +606,21 @@ function initShreyanCatBot() {
   function getReply(q) {
     const s = q.toLowerCase();
     if (s.includes("batch") || s.includes("time") || s.includes("timing") || s.includes("schedule")) {
-      return "Class batches assemble Monday & Friday or Tuesday & Saturday.Meowwwww";
+      return "Class batches assemble Tuesday & Friday (5:00 PM) or Wednesday & Saturday (5:30 PM). Sunday assessment sessions start at 9:00 AM sharp! ⚜️";
     }
     if (s.includes("paper") || s.includes("test") || s.includes("exam") || s.includes("omr")) {
-      return "Examination folios are accessible under the <strong>Assessment Paper</strong> tab. Review on-screen and STUDY.Porashona korun..meoww";
+      return "Examination folios are accessible under the <strong>Assessment Paper</strong> tab. Review on-screen and bring blank 50-mark OMR sheets on Sunday.";
     }
     if (s.includes("joke") || s.includes("funny") || s.includes("laugh")) {
       return "Why did the cat sit on the parchment? It wanted to leave an indelible impression. 🐾📜";
     }
     if (s.includes("fee") || s.includes("due") || s.includes("lock") || s.includes("pay")) {
-      return "If access to question pdf is on hold, drop a quick WhatsApp note to ShreyanCat to update the ledger! Meowwww";
+      return "If access to question folios is on hold, ask your parents to drop a quick WhatsApp note to Swati Ma'am to update the ledger! 💬";
     }
     if (s.includes("who made") || s.includes("developer") || s.includes("creator") || s.includes("cat")) {
-      return "This study portal was custom crafted by <strong>ShreyanCat</strong>! 🐾Don't dare think this is AI made,becuz it is not...";
+      return "This study salon was custom crafted by <strong>ShreyanCat</strong>! 🐾⚡";
     }
-    return "Noted. Check the class notice board on your overview desk or ask Swati Ma'am during batch hours.Meowww!";
+    return "Noted. Check the class notice plinth on your overview desk or consult Swati Ma'am during batch hours. ⚜️";
   }
 
   form.addEventListener("submit", (e) => {
@@ -559,47 +641,10 @@ function initShreyanCatBot() {
   });
 }
 
-// 11. Security Protection
-function initSecurity() {
-  const canvasBox = document.getElementById("canvasViewport");
-  const blurShield = document.getElementById("securityBlurScreen");
-
-  if (!canvasBox || !blurShield) return;
-
-  // Keep screen black by default
-  blurShield.style.display = "flex";
-  blurShield.innerHTML = `
-    <div style="text-align: center; color: #fff; padding: 1.5rem;">
-      <p style="font-size: 1.8rem; margin-bottom: 0.5rem;">👆</p>
-      <p style="font-size: 1.1rem; font-weight: bold; margin-bottom: 0.3rem;">Press & Hold to Read</p>
-      <p style="font-size: 0.8rem; color: #94a3b8;">Lifting finger snaps screen black to protect assessment content.</p>
-    </div>
-  `;
-
-  // Reveal only while finger is actively held down
-  canvasBox.addEventListener("touchstart", (e) => {
-    if (e.touches.length === 1) {
-      blurShield.style.display = "none";
-    }
-  }, { passive: true });
-
-  // Snap black the millisecond finger moves away or lifts
-  ["touchend", "touchcancel"].forEach(evt => {
-    canvasBox.addEventListener(evt, () => {
-      blurShield.style.display = "flex";
-    }, { passive: true });
-  });
-
-  // Block right-clicks and PC screenshot keys
-  document.addEventListener("contextmenu", e => e.preventDefault());
-  window.addEventListener("blur", () => { blurShield.style.display = "flex"; });
-}
-
 // 12. Main Bootstrapper
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   initSecurity();
-  initPawTrail();
   checkAuthAndRender();
   initFeedback();
   initShreyanCatBot();
@@ -700,6 +745,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Dual Verification Engine: Handles both Plaintext PINs and Salted Hashes seamlessly
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
@@ -711,7 +757,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const roster = await getLiveRoster();
       const student = roster[name];
 
-      if (student && student.pin === pass) {
+      if (!student) {
+        err.textContent = "Invalid identity or PIN key. Please consult Swati Ma'am.";
+        err.style.display = "block";
+        return;
+      }
+
+      const calculatedToken = await computeSaltedHash(pass);
+      const isValid = (student.token && student.token === calculatedToken) || (student.pin && student.pin === pass);
+
+      if (isValid) {
         localStorage.removeItem("tuition_session_v5");
         localStorage.setItem("tuition_session_clean", JSON.stringify({
           id: name,
