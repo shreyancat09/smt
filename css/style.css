@@ -1,18 +1,17 @@
 /* ==========================================================================
    TUITION STUDY PORTAL - BESPOKE ACADEMIC ATELIER THEME
    Typographic Harmony: Playfair Display + Plus Jakarta Sans + Cinzel
-   Palette: Prussian Velvet, Warm Vellum, Burnished Gold, Antique Ochre
+   Palette: Prussian Velvet, Warm Vellum, Burnished Gold, Solid Obsidian
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Warm Parchment Palette (Light Mode) */
   --bg-page: #fbfaf6;
   --bg-gradient: radial-gradient(circle at 15% 15%, #fcfbf9 0%, #f6f3eb 100%);
   --bg-surface: #ffffff;
   --bg-surface-elevated: #faf8f2;
-  --bg-card-glass: rgba(255, 255, 255, 0.88);
+  --bg-card-glass: rgba(255, 255, 255, 0.90);
   --border-hairline: rgba(180, 155, 110, 0.22);
   --border-focus: #b8934a;
 
@@ -20,20 +19,16 @@
   --text-muted: #5e697a;
   --text-dim: #949ea8;
 
-  /* Noble Accents */
   --gold-primary: #a67c2e;
   --gold-light: #d6af63;
   --gold-subtle: rgba(166, 124, 46, 0.1);
-  --prussian-blue: #0f1e36;
   --crimson-seal: #991b1b;
   --emerald-seal: #1b663e;
 
-  /* Typography */
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
   --font-display: 'Cinzel', serif;
 
-  /* Shadows & Depth */
   --shadow-subtle: 0 4px 20px -2px rgba(20, 28, 40, 0.05);
   --shadow-elevated: 0 16px 40px -8px rgba(15, 30, 54, 0.09);
   --radius-sm: 6px;
@@ -42,12 +37,11 @@
 }
 
 [data-theme="dark"] {
-  /* Nocturne Obsidian & Gilded Brass (Dark Mode) */
   --bg-page: #090d14;
   --bg-gradient: radial-gradient(circle at 20% 10%, #101726 0%, #06090f 100%);
   --bg-surface: #101622;
   --bg-surface-elevated: #161e2e;
-  --bg-card-glass: rgba(16, 22, 34, 0.85);
+  --bg-card-glass: rgba(16, 22, 34, 0.88);
   --border-hairline: rgba(214, 175, 99, 0.16);
   --border-focus: #e5c07b;
 
@@ -58,7 +52,6 @@
   --gold-primary: #e5c07b;
   --gold-light: #f5dc9e;
   --gold-subtle: rgba(229, 192, 123, 0.12);
-  --prussian-blue: #3b82f6;
   --crimson-seal: #ef4444;
   --emerald-seal: #10b981;
 
@@ -84,36 +77,91 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Elegant Parchment Texture Effect */
-body::before {
-  content: "";
+/* ==========================================================================
+   SOLID BLACKOUT HARDWARE CURTAINS (SCREENSHOT TRAPS)
+   ========================================================================== */
+
+#blackoutCurtain {
   position: fixed;
   inset: 0;
-  pointer-events: none;
-  background-image: radial-gradient(rgba(166, 124, 46, 0.03) 1px, transparent 1px);
-  background-size: 24px 24px;
-  z-index: 1;
-}
-
-/* Atmospheric Desktop Mouse Trail */
-.floating-paw {
-  position: fixed;
-  pointer-events: none;
-  font-size: 1.1rem;
-  z-index: 9999;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000000 !important;
+  z-index: 9999999 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #ffffff;
+  padding: 1.5rem;
+  cursor: pointer;
   user-select: none;
-  opacity: 0.45;
-  filter: drop-shadow(0 2px 4px rgba(166, 124, 46, 0.2));
-  animation: etherealFade 0.9s forwards ease-out;
 }
 
-@keyframes etherealFade {
-  0% { opacity: 0.55; transform: translate(-50%, -50%) scale(0.9); }
-  100% { opacity: 0; transform: translate(-50%, -100%) scale(0.35); }
+.blackout-box {
+  background: #090d14;
+  border: 1px solid rgba(214, 175, 99, 0.35);
+  border-radius: var(--radius-md);
+  padding: 2.25rem 1.75rem;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95);
+}
+
+/* Touch & Hold Curtain on Mobile */
+.hold-reveal-shield {
+  position: absolute;
+  inset: 0;
+  background-color: #000000;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #ffffff;
+  padding: 1.5rem;
+  user-select: none;
+  touch-action: none;
+  cursor: pointer;
+}
+
+.hold-prompt-content {
+  background: rgba(16, 22, 34, 0.94);
+  border: 1px solid rgba(214, 175, 99, 0.3);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  max-width: 380px;
+  width: 100%;
+  pointer-events: none;
+}
+
+.hold-icon-pulse {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  animation: gentlePulse 1.8s infinite;
+}
+
+@keyframes gentlePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+.hold-prompt-content h3 {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  color: var(--gold-light);
+  margin-bottom: 0.4rem;
+}
+
+.hold-prompt-content p {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  line-height: 1.5;
 }
 
 /* ==========================================================================
-   AUTHENTICATION EXPERIENCE (ATELIER ENTRY PASS)
+   AUTHENTICATION EXPERIENCE
    ========================================================================== */
 
 .auth-wrapper {
@@ -166,7 +214,6 @@ body::before {
   border: 1px solid var(--border-hairline);
   margin-bottom: 1.25rem;
   box-shadow: var(--shadow-subtle);
-  position: relative;
 }
 
 .seal-icon {
@@ -256,7 +303,7 @@ textarea:focus,
 }
 
 /* ==========================================================================
-   NAVIGATION BAR & SALON CONTROLS
+   NAVIGATION BAR
    ========================================================================== */
 
 .top-nav {
@@ -356,7 +403,7 @@ textarea:focus,
 }
 
 /* ==========================================================================
-   EDITORIAL CONTAINER & SECTIONS
+   PAGE CONTAINER & SECTIONS
    ========================================================================== */
 
 .page-container {
@@ -376,7 +423,6 @@ textarea:focus,
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Welcome Plinth */
 .welcome-card {
   background: var(--bg-card-glass);
   backdrop-filter: blur(16px);
@@ -388,7 +434,6 @@ textarea:focus,
   align-items: center;
   margin-bottom: 2rem;
   box-shadow: var(--shadow-subtle);
-  position: relative;
 }
 
 .welcome-card h2 {
@@ -418,7 +463,6 @@ textarea:focus,
   text-transform: uppercase;
 }
 
-/* Cards & Editorial Grid */
 .portal-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -435,13 +479,6 @@ textarea:focus,
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-subtle);
-  position: relative;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-elevated);
 }
 
 .card-tag {
@@ -502,11 +539,10 @@ textarea:focus,
 
 .notice-list li strong {
   color: var(--gold-primary);
-  letter-spacing: 0.02em;
 }
 
 /* ==========================================================================
-   BUTTONS (ATELIER TACTILE FEEL)
+   BUTTONS
    ========================================================================== */
 
 .btn {
@@ -515,7 +551,6 @@ textarea:focus,
   justify-content: center;
   font-weight: 600;
   font-size: 0.88rem;
-  letter-spacing: 0.02em;
   padding: 0.75rem 1.35rem;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
@@ -556,11 +591,6 @@ textarea:focus,
   border-radius: var(--radius-sm);
 }
 
-.btn-outline-sm:hover {
-  color: var(--text-main);
-  border-color: var(--gold-primary);
-}
-
 .btn-sm {
   padding: 0.45rem 0.9rem;
   font-size: 0.82rem;
@@ -580,10 +610,6 @@ textarea:focus,
   cursor: pointer;
 }
 
-.btn-icon:hover {
-  border-color: var(--gold-primary);
-}
-
 .btn-whatsapp {
   background: #15803d;
   color: #ffffff;
@@ -597,7 +623,7 @@ textarea:focus,
 .btn-block { width: 100%; }
 
 /* ==========================================================================
-   ACADEMIC ARCHIVE PDF DESK (MANUSCRIPT VIEWPORT)
+   PDF VIEWER & WORKSPACE
    ========================================================================== */
 
 .viewer-header-row {
@@ -630,12 +656,8 @@ textarea:focus,
   font-size: 0.82rem;
   color: var(--gold-primary);
   font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
-/* Antique Study Desk Workspace */
 .viewer-workspace {
   background: #151a24;
   border: 1px solid rgba(214, 175, 99, 0.25);
@@ -702,29 +724,8 @@ textarea:focus,
   pointer-events: none;
 }
 
-.security-blur-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(9, 13, 20, 0.94);
-  backdrop-filter: blur(14px);
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: #fff;
-  padding: 1.5rem;
-}
-
-.security-blur-msg p:first-child {
-  font-family: var(--font-serif);
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-  color: var(--gold-light);
-}
-
 /* ==========================================================================
-   STUDENT DISCUSSION LOUNGE & REPLIES
+   DISCUSSION LOUNGE
    ========================================================================== */
 
 .page-header {
@@ -862,12 +863,8 @@ textarea:focus,
   background: var(--bg-surface-elevated);
 }
 
-.academic-table tr:hover td {
-  background: rgba(166, 124, 46, 0.02);
-}
-
 /* ==========================================================================
-   FEE LOCK CARD (NOBLE SEAL NOTICE)
+   FEE LOCK CARD
    ========================================================================== */
 
 .fee-lock-card {
@@ -927,9 +924,7 @@ textarea:focus,
   transform: scale(1.1) rotate(-5deg);
 }
 
-.cat-face-icon {
-  font-size: 28px;
-}
+.cat-face-icon { font-size: 28px; }
 
 .cat-active-beacon {
   position: absolute;
@@ -979,7 +974,6 @@ textarea:focus,
   display: block;
   font-family: var(--font-display);
   font-size: 0.88rem;
-  letter-spacing: 0.06em;
   color: var(--gold-light);
 }
 
@@ -1050,11 +1044,6 @@ textarea:focus,
   cursor: pointer;
 }
 
-.chip-item:hover {
-  border-color: var(--gold-primary);
-  color: var(--gold-primary);
-}
-
 .cat-input-bar {
   display: flex;
   padding: 0.65rem;
@@ -1097,11 +1086,16 @@ textarea:focus,
 
 .portal-footer strong {
   font-family: var(--font-display);
-  letter-spacing: 0.08em;
   color: var(--gold-primary);
 }
 
-@media print { html, body { display: none !important; } }
+/* Hard Print Disabling */
+@media print {
+  html, body {
+    display: none !important;
+    background-color: #000000 !important;
+  }
+}
 
 @media (max-width: 860px) {
   .home-bottom-grid { grid-template-columns: 1fr; }
