@@ -1,45 +1,922 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-  <title>Swati Ma'am Tutorial • Academic Evaluation Portal</title>
+  <title>Academic Atelier • Evaluation Desk</title>
   
-  <meta name="theme-color" content="#101726">
+  <meta name="theme-color" content="#070a10">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <style>
+    /* ==========================================================================
+       ARCHIVAL ATELIER LUXURY THEME
+       Palette: Deep Basalt, Smoked Gold Leaf, Warm Vellum Glass
+       ========================================================================== */
+    :root {
+      --bg-base: #06090f;
+      --bg-gradient: radial-gradient(120% 120% at 50% 0%, #101726 0%, #06090f 100%);
+      --bg-surface: #0c121d;
+      --bg-surface-elevated: #131b2a;
+      --bg-glass: rgba(14, 21, 34, 0.75);
+
+      --gold-foil: #d4af37;
+      --gold-light: #f3df9b;
+      --gold-glow: rgba(212, 175, 55, 0.16);
+      --gold-border: rgba(212, 175, 55, 0.22);
+      --gold-border-focus: #f3df9b;
+
+      --text-main: #f5f4ef;
+      --text-muted: #95a2b5;
+      --text-dim: #5c687a;
+
+      --crimson-seal: #f87171;
+      --emerald-seal: #34d399;
+
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-display: 'Cinzel', serif;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 26px;
+      --shadow-luxury: 0 16px 48px -8px rgba(0, 0, 0, 0.65), 0 0 24px var(--gold-glow);
+    }
+
+    [data-theme="light"] {
+      --bg-base: #fbf9f4;
+      --bg-gradient: radial-gradient(120% 120% at 50% 0%, #ffffff 0%, #f4efe2 100%);
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #f5f0e6;
+      --bg-glass: rgba(255, 255, 255, 0.85);
+
+      --gold-foil: #a67c2e;
+      --gold-light: #c8983e;
+      --gold-glow: rgba(166, 124, 46, 0.12);
+      --gold-border: rgba(166, 124, 46, 0.22);
+      --gold-border-focus: #a67c2e;
+
+      --text-main: #141c2b;
+      --text-muted: #586578;
+      --text-dim: #8b97a8;
+
+      --crimson-seal: #b91c1c;
+      --emerald-seal: #15803d;
+      --shadow-luxury: 0 16px 40px -8px rgba(20, 28, 43, 0.08), 0 0 20px var(--gold-glow);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                  color 0.2s ease,
+                  transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.25s ease;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-gradient);
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient Gold Dust Texture */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: radial-gradient(var(--gold-border) 1px, transparent 1px);
+      background-size: 32px 32px;
+      z-index: 1;
+      opacity: 0.65;
+    }
+
+    /* ==========================================================================
+       HARDWARE SCREENSHOT BLACKOUT CURTAIN
+       ========================================================================== */
+    #blackoutCurtain {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000000 !important;
+      z-index: 9999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #ffffff;
+      padding: 1.5rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .blackout-box {
+      background: #090e17;
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-md);
+      padding: 2.6rem 2rem;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95);
+      animation: curtainEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes curtainEnter {
+      from { opacity: 0; transform: translateY(14px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ==========================================================================
+       AUTHENTICATION PORTAL
+       ========================================================================== */
+    .auth-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .login-card {
+      background: var(--bg-glass);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-lg);
+      padding: 3.5rem 2.8rem;
+      max-width: 450px;
+      width: 100%;
+      box-shadow: var(--shadow-luxury);
+      position: relative;
+      overflow: hidden;
+      animation: entranceGlow 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes entranceGlow {
+      from { opacity: 0; transform: translateY(22px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold-foil), transparent);
+    }
+
+    .academic-crest {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--gold-border);
+      margin: 0 auto 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--gold-foil);
+      box-shadow: 0 0 24px var(--gold-glow);
+      animation: pulseCrest 4s infinite ease-in-out;
+    }
+
+    @keyframes pulseCrest {
+      0%, 100% { box-shadow: 0 0 16px var(--gold-glow); transform: scale(1); }
+      50% { box-shadow: 0 0 28px rgba(212, 175, 55, 0.3); transform: scale(1.03); }
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 2.4rem;
+    }
+
+    .login-header h1 {
+      font-family: var(--font-serif);
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+      margin-bottom: 0.35rem;
+    }
+
+    .login-header p {
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold-foil);
+      font-family: var(--font-display);
+      font-weight: 600;
+    }
+
+    .form-group {
+      margin-bottom: 1.4rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.74rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input,
+    textarea,
+    .form-select {
+      width: 100%;
+      padding: 0.95rem 1.15rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--gold-border);
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-family: var(--font-sans);
+      outline: none;
+    }
+
+    .form-group input:focus,
+    textarea:focus,
+    .form-select:focus {
+      border-color: var(--gold-border-focus);
+      box-shadow: 0 0 0 3px var(--gold-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.03em;
+      padding: 0.88rem 1.6rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-foil) 100%);
+      color: #0b0f17;
+      box-shadow: 0 4px 18px var(--gold-glow);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.32);
+      filter: brightness(1.05);
+    }
+
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-secondary {
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--gold-border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--gold-foil);
+      background: var(--bg-surface);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline-sm {
+      background: transparent;
+      border: 1px solid var(--gold-border);
+      color: var(--text-muted);
+      padding: 0.4rem 0.95rem;
+      font-size: 0.78rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .btn-outline-sm:hover {
+      color: var(--gold-foil);
+      border-color: var(--gold-foil);
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.82rem;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--gold-border);
+      color: var(--text-main);
+    }
+
+    .btn-whatsapp {
+      background: #15803d;
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(21, 128, 61, 0.28);
+    }
+
+    .btn-whatsapp:hover {
+      background: #166534;
+      transform: translateY(-1px);
+    }
+
+    .btn-block { width: 100%; }
+
+    .auth-error {
+      margin-top: 1.25rem;
+      padding: 0.8rem 1rem;
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      color: var(--crimson-seal);
+      border-radius: var(--radius-sm);
+      font-size: 0.84rem;
+      text-align: center;
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    /* ==========================================================================
+       TOP NAVIGATION
+       ========================================================================== */
+    .top-nav {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--gold-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+    }
+
+    .brand {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .brand-crest {
+      color: var(--gold-foil);
+      font-size: 1.35rem;
+      filter: drop-shadow(0 0 8px var(--gold-glow));
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.4rem;
+      background: var(--bg-surface-elevated);
+      padding: 0.3rem;
+      border-radius: 9999px;
+      border: 1px solid var(--gold-border);
+    }
+
+    .nav-tab-btn {
+      background: transparent;
+      border: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 0.52rem 1.25rem;
+      border-radius: 9999px;
+      cursor: pointer;
+    }
+
+    .nav-tab-btn:hover { color: var(--text-main); }
+
+    .nav-tab-btn.active {
+      color: var(--text-main);
+      background: var(--bg-surface);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .user-control {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .student-pill {
+      background: var(--gold-glow);
+      border: 1px solid var(--gold-border);
+      color: var(--gold-foil);
+      padding: 0.4rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* ==========================================================================
+       PAGE CONTAINERS & EDITORIAL PLINTHS
+       ========================================================================== */
+    .page-container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 2.8rem 1.5rem 6rem;
+      flex: 1;
+      position: relative;
+      z-index: 2;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active {
+      display: block;
+      animation: tabFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-plinth {
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-md);
+      padding: 2.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      box-shadow: var(--shadow-luxury);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-plinth::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--gold-foil);
+    }
+
+    .hero-plinth h2 {
+      font-family: var(--font-serif);
+      font-size: 2.4rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.4rem;
+    }
+
+    .hero-plinth p {
+      color: var(--text-muted);
+      font-size: 0.98rem;
+      max-width: 640px;
+      line-height: 1.6;
+    }
+
+    .session-badge {
+      font-family: var(--font-display);
+      background: var(--gold-glow);
+      color: var(--gold-foil);
+      border: 1px solid var(--gold-border);
+      padding: 0.55rem 1.25rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      text-transform: uppercase;
+      box-shadow: 0 0 15px var(--gold-glow);
+    }
+
+    .portal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.85rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .card {
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-md);
+      padding: 2.4rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-luxury);
+    }
+
+    .card-tag {
+      align-self: flex-start;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--gold-glow);
+      color: var(--gold-foil);
+      border: 1px solid var(--gold-border);
+      padding: 0.3rem 0.75rem;
+      border-radius: 4px;
+      margin-bottom: 1.35rem;
+    }
+
+    .card h3 {
+      font-family: var(--font-serif);
+      font-size: 1.7rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      color: var(--text-main);
+    }
+
+    .card p {
+      color: var(--text-muted);
+      font-size: 0.94rem;
+      line-height: 1.6;
+      margin-bottom: 1.75rem;
+    }
+
+    .thought-plinth {
+      border-left: 3px solid var(--gold-foil);
+      font-style: italic;
+      color: var(--text-muted);
+      background: var(--bg-surface-elevated);
+      padding: 1.25rem 1.5rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    /* ==========================================================================
+       ACADEMIC ARCHIVE PDF DESK
+       ========================================================================== */
+    .viewer-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .viewer-header-row h2 {
+      font-family: var(--font-serif);
+      font-size: 2.2rem;
+      font-weight: 600;
+    }
+
+    .security-banner {
+      background: var(--gold-glow);
+      border: 1px solid var(--gold-border);
+      padding: 0.8rem 1.4rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 1.5rem;
+      font-size: 0.84rem;
+      color: var(--gold-foil);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .viewer-workspace {
+      background: #090d14;
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75);
+    }
+
+    .viewer-toolbar {
+      width: 100%;
+      max-width: 900px;
+      background: #0f1522;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-sm);
+      padding: 0.8rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #e2e8f0;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+    }
+
+    .page-counter {
+      font-family: var(--font-display);
+      font-size: 0.84rem;
+      letter-spacing: 0.08em;
+      color: var(--gold-light);
+    }
+
+    .canvas-viewport {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      max-height: 75vh;
+      background: #1c2331;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 4px;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.65);
+      touch-action: pan-x pan-y;
+    }
+
+    .document-layer {
+      display: block;
+      margin: 0 auto;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .watermark-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       DISCUSSION FORUM
+       ========================================================================== */
+    .discussion-container {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .discussion-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 1.4rem;
+    }
+
+    .discussion-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+    }
+
+    .author-badge {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gold-foil);
+    }
+
+    .replies-wrapper {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ==========================================================================
+       SHREYAN-CAT TALISMAN WIDGET
+       ========================================================================== */
+    .cat-talisman-btn {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #162033 0%, #090d14 100%);
+      border: 1px solid var(--gold-border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 20px var(--gold-glow);
+      cursor: pointer;
+      z-index: 1000;
+      animation: catHover 3.5s infinite ease-in-out;
+    }
+
+    @keyframes catHover {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .cat-talisman-btn:hover {
+      transform: scale(1.1) rotate(-6deg);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 28px var(--gold-foil);
+    }
+
+    .cat-avatar-icon {
+      font-size: 32px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    }
+
+    .cat-chat-window {
+      position: fixed;
+      bottom: 100px;
+      right: 28px;
+      width: 370px;
+      height: 530px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--gold-border);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), var(--shadow-luxury);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 1000;
+      animation: curtainEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .cat-chat-header {
+      background: #090e18;
+      color: #f8fafc;
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--gold-border);
+    }
+
+    .cat-chat-body {
+      flex: 1;
+      padding: 1.15rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      background: var(--bg-surface-elevated);
+    }
+
+    .cat-msg {
+      max-width: 84%;
+      padding: 0.78rem 1.1rem;
+      border-radius: 14px;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    .cat-msg.bot {
+      background: var(--bg-surface);
+      border: 1px solid var(--gold-border);
+      color: var(--text-main);
+      align-self: flex-start;
+      border-bottom-left-radius: 2px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .cat-msg.user {
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-foil) 100%);
+      color: #0b0f17;
+      font-weight: 500;
+      align-self: flex-end;
+      border-bottom-right-radius: 2px;
+    }
+
+    .cat-chips-bar {
+      padding: 0.65rem 0.95rem;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--gold-border);
+      display: flex;
+      gap: 0.45rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .cat-chips-bar::-webkit-scrollbar { display: none; }
+
+    .chip-item {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--gold-border);
+      color: var(--text-main);
+      padding: 0.35rem 0.8rem;
+      border-radius: 9999px;
+      font-size: 0.74rem;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .chip-item:hover {
+      border-color: var(--gold-foil);
+      color: var(--gold-foil);
+      transform: translateY(-1px);
+    }
+
+    .cat-input-bar {
+      display: flex;
+      padding: 0.75rem;
+      border-top: 1px solid var(--gold-border);
+      background: var(--bg-surface);
+    }
+
+    .cat-input-bar input {
+      flex: 1;
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 0.85rem;
+      font-size: 0.88rem;
+      outline: none;
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+    }
+
+    .portal-footer {
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+      border-top: 1px solid var(--gold-border);
+      background: var(--bg-surface);
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      margin-top: auto;
+    }
+
+    .portal-footer strong {
+      font-family: var(--font-display);
+      color: var(--gold-foil);
+    }
+
+    @media print { html, body { display: none !important; } }
+
+    @media (max-width: 860px) {
+      .nav-container { flex-direction: column; align-items: stretch; gap: 1rem; }
+      .nav-tabs { overflow-x: auto; border-radius: var(--radius-sm); }
+      .hero-plinth { flex-direction: column; align-items: flex-start; gap: 1.25rem; padding: 2rem; }
+      .cat-chat-window { width: calc(100vw - 40px); right: 20px; bottom: 95px; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- 1. FULL-SCREEN HARDWARE BLACKOUT CURTAIN -->
+  <!-- ==================== 1. BLACKOUT CURTAIN ==================== -->
   <div id="blackoutCurtain" style="display: none;">
     <div class="blackout-box">
-      <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🔒</div>
-      <p style="font-size: 1.25rem; font-weight: 700; color: #f5dc9e; margin-bottom: 0.35rem;">Protected Examination Folio</p>
-      <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.5;">Screen capture attempted or window focus lost.<br>Tap anywhere on screen to resume reading.</p>
+      <div style="font-size: 2.4rem; margin-bottom: 0.6rem;">🔒</div>
+      <p style="font-size: 1.35rem; font-family: var(--font-serif); color: var(--gold-light); margin-bottom: 0.4rem;">Confidential Academic Folio</p>
+      <p style="color: #94a3b8; font-size: 0.88rem; line-height: 1.55;">
+        Multi-touch capture gesture, external shade, or focus shift detected.<br><br>
+        <strong>Tap anywhere on this screen to return to your reading.</strong>
+      </p>
     </div>
   </div>
-
-  <!-- Desktop Atmospheric Cursor Trail Layer -->
-  <div id="pawTrailContainer" class="paw-trail-layer"></div>
 
   <!-- ==================== 2. ATELIER LOGIN SCREEN ==================== -->
   <main id="loginScreen" class="auth-wrapper">
     <div class="login-card">
       <header class="login-header">
-        <div class="academic-seal-badge">
-          <span class="seal-icon">🏛️</span>
-        </div>
+        <div class="academic-crest">🏛️</div>
         <h1>Classroom Study Portal</h1>
         <p>Continuous Evaluation &amp; Resource Desk</p>
       </header>
 
       <form id="loginForm" autocomplete="off">
         <div class="form-group">
-          <label for="studentName">Student / Faculty Name</label>
+          <label for="studentName">Student / Faculty Identity</label>
           <input type="text" id="studentName" placeholder="Enter registered name" required spellcheck="false">
         </div>
 
@@ -64,21 +941,20 @@
     <header class="top-nav">
       <div class="nav-container">
         <div class="brand">
-          <span class="brand-paw">⚜️</span>
-          <span class="brand-name">Tuition Atelier</span>
+          <span class="brand-crest">⚜️</span>
+          <span>Tuition Atelier</span>
         </div>
 
         <nav class="nav-tabs">
-          <button class="nav-tab-btn active" data-tab="tab-home">Overview</button>
-          <button class="nav-tab-btn" data-tab="tab-paper">Assessment Paper</button>
+          <button class="nav-tab-btn active" data-tab="tab-home">Desk</button>
+          <button class="nav-tab-btn" data-tab="tab-paper">Evaluation Folio</button>
           <button class="nav-tab-btn" data-tab="tab-discussion">Study Lounge</button>
-          <button class="nav-tab-btn" data-tab="tab-contact">Protocols</button>
-          <!-- Faculty Desk Tab (Visible ONLY to Admin) -->
-          <button class="nav-tab-btn" id="adminNavTab" data-tab="tab-admin" style="display: none; color: var(--gold-primary); font-weight: 700;">⚙️ Faculty Desk</button>
+          <button class="nav-tab-btn" data-tab="tab-contact">Faculty Desk</button>
+          <button class="nav-tab-btn" id="adminNavTab" data-tab="tab-admin" style="display: none; color: var(--gold-foil); font-weight: 700;">⚙️ Faculty Console</button>
         </nav>
 
         <div class="user-control">
-          <button id="themeToggleBtn" class="btn-theme-toggle">🌙 Nocturne</button>
+          <button id="themeToggleBtn" class="btn-sm" style="border-radius: 9999px; cursor: pointer;">☀️ Daylight</button>
           <span class="student-pill" id="studentDisplay">Student</span>
           <button id="logoutBtn" class="btn btn-outline-sm">Exit</button>
         </div>
@@ -87,66 +963,64 @@
 
     <main class="page-container">
 
-      <!-- ================= TAB 1: OVERVIEW ================= -->
+      <!-- ================= TAB 1: DESK (HOME) ================= -->
       <section id="tab-home" class="tab-content active">
         
-        <!-- Fee Lock Notice Screen -->
-        <div id="feeLockScreen" class="fee-lock-card" style="display: none;">
-          <div class="lock-shield-icon">📜</div>
-          <h2>Portal Access Temporarily Paused</h2>
-          <p id="feeLockMessage">
-            Tuition records show evaluation dues pending for recent sessions. Please consult with Swati Ma'am to restore full archival access.
+        <div id="feeLockScreen" class="card" style="display: none; max-width: 600px; margin: 3rem auto; text-align: center; border-color: var(--crimson-seal);">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">📜</div>
+          <h2 style="font-family: var(--font-serif); color: var(--crimson-seal); margin-bottom: 0.6rem;">Folio Access On Hold</h2>
+          <p id="feeLockMessage" style="color: var(--text-muted); line-height: 1.6; margin-bottom: 1.8rem;">
+            Tuition records show dues pending for recent sessions. Please consult with Swati Ma'am to restore full archival folio access.
           </p>
           <div style="max-width: 320px; margin: 0 auto;">
-            <a id="feeWhatsAppBtn" href="#" target="_blank" class="btn btn-whatsapp btn-block">
-              💬 Message Swati Ma'am on WhatsApp
-            </a>
+            <a id="feeWhatsAppBtn" href="#" target="_blank" class="btn btn-whatsapp btn-block">💬 Message Swati Ma'am</a>
           </div>
         </div>
 
-        <!-- Normal Dashboard -->
         <div id="homeUnlockedView">
-          <section class="welcome-card">
+          <section class="hero-plinth">
             <div>
               <h2 id="welcomeGreeting">Welcome back!</h2>
-              <p>Active evaluation papers, batch announcements, and peer scholarly notes.</p>
+              <p>Your quiet academic repository for weekly evaluations, scholarly notes, and collaborative inquiry.</p>
             </div>
-            <div class="date-badge">Academic Session 2026–27</div>
+            <div class="session-badge">Academic Session 2026–27</div>
           </section>
 
           <section class="portal-grid">
             <article class="card">
               <div class="card-tag">Protected Assessment</div>
-              <h3>Weekly Examination Paper</h3>
-              <p>Watermarked on-screen evaluation copy. Anti-capture and download protections active.</p>
-              <button class="btn btn-primary" onclick="switchTab('tab-paper')">Open Examination Desk &rarr;</button>
+              <h3>Continuous Evaluation Folio</h3>
+              <p>On-screen protected question papers with individualized forensic watermarking.</p>
+              <button class="btn btn-primary" onclick="switchTab('tab-paper')">Open Examination Folio &rarr;</button>
             </article>
 
             <article class="card">
-              <div class="card-tag secondary">Scholarly Forum</div>
+              <div class="card-tag">Scholarly Forum</div>
               <h3>Peer Discussion Lounge</h3>
-              <p>Clarify assignment doubts, review answers, and debate mock questions with batchmates.</p>
+              <p>Compare perspectives, review concepts, and post academic questions with batch peers.</p>
               <button class="btn btn-secondary" onclick="switchTab('tab-discussion')">Enter Lounge &rarr;</button>
             </article>
           </section>
 
-          <div class="home-bottom-grid">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.85rem;">
             <section class="card">
-              <div class="card-tag">Notices</div>
-              <h3>Class Notice Board</h3>
-              <ul class="notice-list">
-              </ul>
+              <div class="card-tag">Scholarly Reflections</div>
+              <h3>Quiet Academic Focus</h3>
+              <div class="thought-plinth">
+                "Clarity comes through deliberate practice and continuous reflection. Re-read every question with quiet patience."
+              </div>
+              <p style="margin-bottom: 0;">Use the digital folio viewer for thoughtful self-evaluation after your revision sets.</p>
             </section>
 
             <section class="card">
-              <div class="card-tag">Direct Desk</div>
+              <div class="card-tag">Direct Inquiry</div>
               <h3>Send a Note to Swati Ma'am</h3>
-              <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                Need to submit a leave note or raise an assignment doubt? Send a note directly to Ma'am's WhatsApp.
+              <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Have a doubt or need guidance regarding an assessment topic? Send your question directly to Ma'am's WhatsApp desk.
               </p>
               <form id="feedbackForm">
-                <textarea id="feedbackText" rows="3" placeholder="Compose note or query..." required></textarea>
-                <div style="display: flex; justify-content: flex-end; margin-top: 0.65rem;">
+                <textarea id="feedbackText" rows="3" placeholder="Compose your academic note or doubt..." required></textarea>
+                <div style="display: flex; justify-content: flex-end; margin-top: 0.85rem;">
                   <button type="submit" class="btn btn-whatsapp btn-sm">💬 Send via WhatsApp &rarr;</button>
                 </div>
               </form>
@@ -155,72 +1029,63 @@
         </div>
       </section>
 
-      <!-- ================= TAB 2: ASSESSMENT PAPER ================= -->
+      <!-- ================= TAB 2: EVALUATION FOLIO ================= -->
       <section id="tab-paper" class="tab-content">
         <div class="viewer-header-row">
           <div>
-            <h2>Continuous Evaluation Desk</h2>
-            <p class="subtext">Confidential examination paper. Real-time watermark &amp; screenshot deterrent active.</p>
+            <h2>Continuous Evaluation Folio</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Archival academic examination paper with forensic watermark protection.</p>
           </div>
 
-          <div class="paper-selector-wrap">
-            <select id="paperSelect" class="form-select" style="min-width: 250px;">
+          <div>
+            <select id="paperSelect" class="form-select" style="min-width: 260px;">
               <option value="">Loading archived papers...</option>
             </select>
           </div>
         </div>
 
         <div class="security-banner">
-          <span>🔒 Protected Examination Desk: Licensed to <strong id="securityStudentTag">Student</strong>.</span>
+          <span>🔒 Protected Academic Folio: Licensed to <strong id="securityStudentTag">Student</strong>.</span>
         </div>
 
         <div class="viewer-workspace">
           <div class="viewer-toolbar">
-            <div class="toolbar-left">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
               <button id="prevPageBtn" class="btn btn-sm">&larr; Prior Page</button>
               <span class="page-counter">FOLIO <span id="currentPageNum">1</span> / <span id="totalPagesNum">1</span></span>
               <button id="nextPageBtn" class="btn btn-sm">Next Page &rarr;</button>
             </div>
-            <div class="toolbar-right">
-              <button id="zoomOutBtn" class="btn btn-icon">−</button>
-              <span id="zoomLevel" style="font-family: var(--font-display); font-size: 0.8rem; color: var(--gold-light);">100%</span>
-              <button id="zoomInBtn" class="btn btn-icon">+</button>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <button id="zoomOutBtn" class="btn-sm" style="border-radius: 4px; cursor: pointer;">−</button>
+              <span id="zoomLevel" style="font-family: var(--font-display); font-size: 0.84rem; color: var(--gold-light);">100%</span>
+              <button id="zoomInBtn" class="btn-sm" style="border-radius: 4px; cursor: pointer;">+</button>
             </div>
           </div>
 
           <div class="canvas-viewport" id="canvasViewport">
-            <!-- Mobile Touch-and-Hold Reveal Shield -->
-            <div id="holdToRevealShield" class="hold-reveal-shield">
-              <div class="hold-prompt-content">
-                <div class="hold-icon-pulse">👆</div>
-                <h3>Press &amp; Hold to View Paper</h3>
-                <p>Protected folio. Releasing finger snaps screen to black to block capture.</p>
-              </div>
-            </div>
-
             <canvas id="watermarkCanvas" class="watermark-layer"></canvas>
             <canvas id="documentCanvas" class="document-layer"></canvas>
           </div>
         </div>
       </section>
 
-      <!-- ================= TAB 3: DISCUSSION LOUNGE ================= -->
+      <!-- ================= TAB 3: STUDY LOUNGE ================= -->
       <section id="tab-discussion" class="tab-content">
-        <div class="page-header">
-          <h2>Peer Discussion Lounge</h2>
-          <p>Collaborative inquiry and academic discourse for Class 10 preparation.</p>
+        <div style="margin-bottom: 2rem;">
+          <h2 style="font-family: var(--font-serif); font-size: 2.2rem; margin-bottom: 0.4rem;">Peer Discussion Lounge</h2>
+          <p style="color: var(--text-muted);">Collaborative inquiry and thoughtful peer clarification on weekly topics.</p>
         </div>
 
         <div class="discussion-container">
           <div class="card">
-            <div class="card-tag">Inquiry</div>
+            <div class="card-tag">Scholarly Inquiry</div>
             <h3>Post an Academic Doubt</h3>
             <form id="discussionForm">
-              <div class="form-group" style="margin-bottom: 0.85rem;">
-                <input type="text" id="discussionTopic" placeholder="Topic title (e.g. Question 4 in Geography Mock Test)" required>
+              <div class="form-group">
+                <input type="text" id="discussionTopic" placeholder="Topic title (e.g. Question 4 in Mock Assessment)" required>
               </div>
-              <div class="form-group" style="margin-bottom: 0.85rem;">
-                <textarea id="discussionContent" rows="3" placeholder="Articulate your doubt or explanation in detail..." required></textarea>
+              <div class="form-group">
+                <textarea id="discussionContent" rows="3" placeholder="Articulate your thought or question in detail..." required></textarea>
               </div>
               <div style="display: flex; justify-content: flex-end;">
                 <button type="submit" class="btn btn-primary">Publish to Lounge &rarr;</button>
@@ -232,55 +1097,56 @@
         </div>
       </section>
 
-      <!-- ================= TAB 4: PROTOCOLS ================= -->
+      <!-- ================= TAB 4: FACULTY DESK ================= -->
       <section id="tab-contact" class="tab-content">
-        <div class="page-header">
-          <h2>Atelier Directory &amp; Protocols</h2>
-          <p>Instructional guidelines and batch administrative desk.</p>
+        <div style="margin-bottom: 2rem;">
+          <h2 style="font-family: var(--font-serif); font-size: 2.2rem; margin-bottom: 0.4rem;">Classroom Atelier Desk</h2>
+          <p style="color: var(--text-muted);">Academic directory and instructor communication channels.</p>
         </div>
 
         <div class="portal-grid">
           <div class="card">
-            <div class="card-tag">Administration</div>
-            <h3>Faculty Desk</h3>
-            <p style="margin-bottom: 0.75rem;">📍 <strong>Location:</strong> Barasat, North 24 Parganas</p>
-            <p style="margin-bottom: 0.75rem;">🎓 <strong>Faculty Head:</strong> Swati Bhattacharyya</p>
-            <p style="margin-bottom: 1.5rem;">📅 <strong>Assessment Cycle:</strong> Alternate Sunday Mornings</p>
-            <a href="https://wa.me/91XXXXXXXXXX?text=Hello%20Maam,%20inquiring%20about%20the%20batch..." target="_blank" class="btn btn-whatsapp">
+            <div class="card-tag">Communication</div>
+            <h3>Faculty Head</h3>
+            <p style="margin-bottom: 0.6rem;">🎓 <strong>Instructor:</strong> Swati Bhattacharyya</p>
+            <p style="margin-bottom: 1.5rem;">📍 <strong>Academic Center:</strong> Barasat, North 24 Parganas</p>
+            <a href="https://wa.me/91XXXXXXXXXX?text=Hello%20Maam,%20inquiring%20about%20the%20study%20portal..." target="_blank" class="btn btn-whatsapp">
               💬 Message on WhatsApp
             </a>
           </div>
 
           <div class="card">
-            <div class="card-tag">Conduct</div>
-            <h3>Batch Protocols</h3>
+            <div class="card-tag">Ethics</div>
+            <h3>Scholarly Integrity</h3>
+            <p style="color: var(--text-muted); line-height: 1.6;">
+              All examination folios and evaluation texts provided within this portal are reserved solely for enrolled students. Dynamic forensic markers protect the integrity of the materials.
+            </p>
           </div>
         </div>
       </section>
 
-      <!-- ================= TAB 5: FACULTY DESK (ADMIN ONLY) ================= -->
+      <!-- ================= TAB 5: FACULTY CONSOLE (ADMIN ONLY) ================= -->
       <section id="tab-admin" class="tab-content">
-        <div class="welcome-card" style="border-left: 4px solid var(--gold-primary);">
+        <div class="hero-plinth" style="border-left: 4px solid var(--gold-foil);">
           <div>
-            <h2>Faculty Administration Desk</h2>
-            <p>Master registry overview: student credentials, fee statuses, and anti-leak tools.</p>
+            <h2>Faculty Administration Console</h2>
+            <p>Roster administration, fee switches, and GitHub cryptographic protection.</p>
           </div>
-          <div class="date-badge">Faculty Access</div>
+          <div class="session-badge">Faculty Access</div>
         </div>
 
-        <!-- Anti-Theft Tools for Admin -->
         <div class="portal-grid" style="margin-bottom: 2rem;">
           <article class="card">
-            <div class="card-tag">GitHub Protection</div>
+            <div class="card-tag">Security Tool</div>
             <h3>Cloak PINs in roster.json</h3>
-            <p>Converts all student PINs into cryptographic salted tokens so students opening your GitHub repository see only gibberish.</p>
+            <p>Converts plain PINs into salted cryptographic hashes so anyone browsing your repository on GitHub sees only uncrackable tokens.</p>
             <button class="btn btn-primary btn-sm" onclick="cloakRosterForGitHub()">🔐 Scramble All PINs for GitHub</button>
           </article>
 
           <article class="card">
-            <div class="card-tag secondary">Action Guide</div>
-            <h3>Lock / Unlock Student Fees</h3>
-            <p>In GitHub Mobile, tap <strong>papers/roster.json</strong> &rarr; tap <strong>Pencil</strong> &rarr; toggle <code>"feesPaid": true</code> to <code>false</code> &rarr; <strong>Commit</strong>. Instant lockout across all devices.</p>
+            <div class="card-tag">Fee Control</div>
+            <h3>Toggle Student Access</h3>
+            <p>In GitHub Mobile, open <code>papers/roster.json</code>, change <code>"feesPaid": true</code> to <code>false</code>, and commit to instantly pause access.</p>
           </article>
         </div>
 
@@ -288,23 +1154,23 @@
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
             <div>
               <h3>Student Registry Directory</h3>
-              <small style="color: var(--text-muted);">Pulled directly from papers/roster.json</small>
+              <small style="color: var(--text-muted);">Live directory from papers/roster.json</small>
             </div>
             <button class="btn btn-outline-sm" onclick="renderAdminRoster()">🔄 Refresh Directory</button>
           </div>
 
-          <div class="table-responsive">
-            <table class="academic-table">
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
               <thead>
-                <tr>
-                  <th>Student Name</th>
-                  <th>Key / Token Status</th>
-                  <th>Access Status</th>
-                  <th>Pending Dues</th>
+                <tr style="border-bottom: 1px solid var(--gold-border); color: var(--gold-foil);">
+                  <th style="padding: 0.75rem 1rem;">Student Name</th>
+                  <th style="padding: 0.75rem 1rem;">Credential Type</th>
+                  <th style="padding: 0.75rem 1rem;">Access Status</th>
+                  <th style="padding: 0.75rem 1rem;">Pending Dues</th>
                 </tr>
               </thead>
               <tbody id="adminRosterTbody">
-                <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Loading student registry...</td></tr>
+                <tr><td colspan="4" style="text-align: center; padding: 1.5rem; color: var(--text-muted);">Loading registry...</td></tr>
               </tbody>
             </table>
           </div>
