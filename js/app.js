@@ -1,14 +1,14 @@
 /* ==========================================================================
-   TUITION STUDY PORTAL - ZERO-TOKEN MASTER ENGINE (HIGH SECURITY SUITE)
-   Protection Matrix:
-   1. Hold-to-Reveal Mobile Viewport (Snaps to solid black on screenshot attempt)
-   2. Global Blackout Curtain on Blur/Task Switch/PrintScreen
-   3. Salted SHA-256 PIN Verification (Zero readable PINs on GitHub)
-   4. High-DPI PDF.js Rendering with 300% Pinch-Zoom & Diagonal Dynamic Watermark
-   5. Admin One-Click PIN Cloaking Engine
+   TUITION STUDY PORTAL - ZERO-TOKEN MASTER ENGINE
+   Security Matrix:
+   - Multi-Touch Screenshot Trap (Blocks 3-finger & palm gestures)
+   - Window Focus Loss / Notification Shade Blackout Curtain
+   - Salted SHA-256 PIN Verification (Zero readable PINs on GitHub)
+   - High-DPI PDF.js Rendering with 300% Zoom & Dynamic Live-Clock Watermark
+   - Interactive Scholarly Companion: ShreyanCat (Timer, Pep Talk, Study Sparks)
    ========================================================================== */
 
-const SWATI_MAAM_PHONE = "91XXXXXXXXXX"; // Put Swati Ma'am's WhatsApp here
+const SWATI_MAAM_PHONE = "91XXXXXXXXXX"; // Replace with Swati Ma'am's WhatsApp number
 const SALT_KEY = "SWATI_STUDY_2026_";
 
 // Helper: Cryptographic Salted SHA-256 Hasher
@@ -43,12 +43,12 @@ function getSession() {
 function switchTab(tabId) {
   const session = getSession();
   if (session && !session.feesPaid && tabId !== "tab-home" && tabId !== "tab-contact") {
-    alert("Portal access is paused. Please clear dues with Swati Ma'am.");
+    alert("Portal access is on hold. Please consult Swati Ma'am.");
     return;
   }
 
   if (tabId === "tab-admin" && (!session || session.id !== "admin")) {
-    alert("Faculty Desk is restricted to administrative staff.");
+    alert("Faculty Console is restricted to administrative staff.");
     return;
   }
 
@@ -65,16 +65,16 @@ function switchTab(tabId) {
   if (tabId === "tab-admin") renderAdminRoster();
 }
 
-// 3. Theme Management
+// 3. Theme Toggle
 function initTheme() {
-  const t = localStorage.getItem("tuition_theme") || "light";
+  const t = localStorage.getItem("tuition_theme") || "dark";
   document.documentElement.setAttribute("data-theme", t);
   const btn = document.getElementById("themeToggleBtn");
   if (btn) btn.textContent = t === "dark" ? "☀️ Daylight" : "🌙 Nocturne";
 }
 
 function toggleTheme() {
-  const cur = document.documentElement.getAttribute("data-theme") || "light";
+  const cur = document.documentElement.getAttribute("data-theme") || "dark";
   const next = cur === "dark" ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("tuition_theme", next);
@@ -82,7 +82,7 @@ function toggleTheme() {
   if (btn) btn.textContent = next === "dark" ? "☀️ Daylight" : "🌙 Nocturne";
 }
 
-// 4. Session Validation & Role-Based UI Rendering
+// 4. Session Verification & Auth
 async function checkAuthAndRender() {
   const session = getSession();
   const loginScreen = document.getElementById("loginScreen");
@@ -108,15 +108,11 @@ async function checkAuthAndRender() {
   if (portalScreen) portalScreen.style.display = "block";
 
   const isAdmin = (session.id === "admin");
-  if (adminNavTab) {
-    adminNavTab.style.display = isAdmin ? "inline-block" : "none";
-  }
+  if (adminNavTab) adminNavTab.style.display = isAdmin ? "inline-block" : "none";
 
   document.querySelectorAll("#studentDisplay, #securityStudentTag").forEach(el => el.textContent = session.name);
   const greet = document.getElementById("welcomeGreeting");
-  if (greet) {
-    greet.textContent = isAdmin ? "Welcome, Swati Ma'am" : `Welcome back, ${session.name}`;
-  }
+  if (greet) greet.textContent = isAdmin ? "Welcome, Swati Ma'am" : `Welcome back, ${session.name}`;
 
   const homeUnlocked = document.getElementById("homeUnlockedView");
   const feeCard = document.getElementById("feeLockScreen");
@@ -130,52 +126,50 @@ async function checkAuthAndRender() {
     if (homeUnlocked) homeUnlocked.style.display = "none";
     if (feeCard) feeCard.style.display = "block";
     if (feeMsg) {
-      feeMsg.innerHTML = `Greetings, <strong>${session.name}</strong>. Examination portal access is temporarily paused as tuition dues for <strong>${session.pendingMonths || "recent sessions"}</strong> remain pending.<br><br>Please clear dues with Swati Ma'am to restore full folio access.`;
+      feeMsg.innerHTML = `Greetings, <strong>${session.name}</strong>. Examination folio access is temporarily paused as tuition records indicate dues for <strong>${session.pendingMonths || "recent sessions"}</strong>.<br><br>Please consult Swati Ma'am to restore full folio access.`;
     }
     if (feeWaBtn) {
       feeWaBtn.href = `https://wa.me/${SWATI_MAAM_PHONE}?text=${encodeURIComponent("Hello Swati Ma'am, I am " + session.name + ". I am writing regarding my pending tuition fees.")}`;
     }
   }
 
-  if (isAdmin) {
-    switchTab("tab-admin");
-  } else {
-    switchTab("tab-home");
-  }
+  if (isAdmin) switchTab("tab-admin");
+  else switchTab("tab-home");
 }
 
-// 5. Render Admin Roster Directory
+// 5. Admin Roster Directory
 async function renderAdminRoster() {
   const tbody = document.getElementById("adminRosterTbody");
   if (!tbody) return;
 
-  tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Fetching registry directory...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 1.5rem; color: var(--text-muted);">Fetching registry directory...</td></tr>`;
   const roster = await getLiveRoster();
 
   tbody.innerHTML = "";
   for (const [key, student] of Object.entries(roster)) {
     if (key === "admin") continue;
     const tr = document.createElement("tr");
+    tr.style.borderBottom = "1px solid var(--gold-border)";
 
     const statusBadge = student.feesPaid
-      ? `<span style="background: rgba(27, 102, 62, 0.1); color: var(--emerald-seal); border: 1px solid rgba(27, 102, 62, 0.25); padding: 0.25rem 0.65rem; border-radius: 4px; font-size: 0.74rem; font-weight: 700;">ACTIVE</span>`
-      : `<span style="background: rgba(153, 27, 27, 0.1); color: var(--crimson-seal); border: 1px solid rgba(153, 27, 27, 0.25); padding: 0.25rem 0.65rem; border-radius: 4px; font-size: 0.74rem; font-weight: 700;">LOCKED</span>`;
+      ? `<span style="background: rgba(52, 211, 153, 0.12); color: var(--emerald-seal); border: 1px solid rgba(52, 211, 153, 0.3); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.74rem; font-weight: 700;">ACTIVE</span>`
+      : `<span style="background: rgba(248, 113, 113, 0.12); color: var(--crimson-seal); border: 1px solid rgba(248, 113, 113, 0.3); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.74rem; font-weight: 700;">LOCKED</span>`;
 
     const credentialBadge = student.token
-      ? `<span style="color: var(--gold-primary); font-family: monospace; font-size: 0.75rem;">🔒 Cloaked (Salted SHA-256)</span>`
-      : `<span style="color: #64748b; font-family: monospace; font-size: 0.75rem;">⚠️ Plaintext (${student.pin})</span>`;
+      ? `<span style="color: var(--gold-foil); font-family: monospace; font-size: 0.76rem;">🔒 Salted Hash</span>`
+      : `<span style="color: var(--text-dim); font-family: monospace; font-size: 0.76rem;">⚠️ Plaintext (${student.pin})</span>`;
 
     tr.innerHTML = `
-      <td><strong>${student.name}</strong></td>
-      <td>${credentialBadge}</td>
-      <td>${statusBadge}</td>
-      <td><small style="color: var(--text-muted);">${student.pendingMonths || "None"}</small></td>
+      <td style="padding: 0.85rem 1rem;"><strong>${student.name}</strong></td>
+      <td style="padding: 0.85rem 1rem;">${credentialBadge}</td>
+      <td style="padding: 0.85rem 1rem;">${statusBadge}</td>
+      <td style="padding: 0.85rem 1rem;"><small style="color: var(--text-muted);">${student.pendingMonths || "None"}</small></td>
     `;
     tbody.appendChild(tr);
   }
 }
 
-// 6. Admin Tool: Scramble All PINs into Salted Hashes for GitHub
+// 6. Admin Tool: Scramble PINs for GitHub
 async function cloakRosterForGitHub() {
   const roster = await getLiveRoster();
   const cloaked = {};
@@ -195,19 +189,23 @@ async function cloakRosterForGitHub() {
   const jsonStr = JSON.stringify(cloaked, null, 2);
   if (navigator.clipboard && navigator.clipboard.writeText) {
     await navigator.clipboard.writeText(jsonStr);
-    alert("✅ Success! The cloaked roster has been copied to your clipboard!\n\nNow open papers/roster.json in GitHub Mobile, select all, paste, and commit. Your PINs will now be completely unreadable to students on GitHub!");
+    alert("✅ Success! Cloaked roster copied to clipboard.\n\nPaste it into papers/roster.json on GitHub Mobile and commit. Plain PINs will now be completely hidden from students!");
   } else {
     prompt("Copy this cloaked roster and paste into papers/roster.json:", jsonStr);
   }
 }
 
-// 7. Security Protection Suite (Hold-to-Reveal + Solid Blackout Curtain)
+// 7. Security Protection Suite (Multi-Touch + Blur Traps)
 function initSecurity() {
   const curtain = document.getElementById("blackoutCurtain");
-  const holdShield = document.getElementById("holdToRevealShield");
+  let blackoutTimer = null;
 
-  function triggerBlackout() {
+  function triggerBlackout(durationMs = 0) {
     if (curtain) curtain.style.display = "flex";
+    if (durationMs > 0) {
+      clearTimeout(blackoutTimer);
+      blackoutTimer = setTimeout(liftBlackout, durationMs);
+    }
   }
 
   function liftBlackout() {
@@ -216,57 +214,35 @@ function initSecurity() {
     }
   }
 
-  // A. Mobile "Hold to Reveal" Gesture Engine
-  if (holdShield) {
-    // Reveal ONLY while finger is actively held down
-    holdShield.addEventListener("touchstart", (e) => {
-      if (e.touches.length === 1) {
-        holdShield.style.opacity = "0";
-        holdShield.style.pointerEvents = "none";
-      }
-    }, { passive: true });
+  // Multi-finger gesture trap (Blocks 3-finger screenshot swipes)
+  window.addEventListener("touchstart", (e) => {
+    if (e.touches.length >= 2) {
+      triggerBlackout(3500);
+    }
+  }, { passive: false });
 
-    // Snap to black the instant finger lifts, shifts, or captures screenshot
-    ["touchend", "touchcancel"].forEach(evt => {
-      window.addEventListener(evt, () => {
-        holdShield.style.opacity = "1";
-        holdShield.style.pointerEvents = "auto";
-      }, { passive: true });
-    });
-
-    // Desktop hover behavior fallback
-    holdShield.addEventListener("mousedown", () => {
-      holdShield.style.opacity = "0";
-      holdShield.style.pointerEvents = "none";
-    });
-    window.addEventListener("mouseup", () => {
-      holdShield.style.opacity = "1";
-      holdShield.style.pointerEvents = "auto";
-    });
-  }
-
-  // B. Window Focus Loss / Screenshot App Switch Blackout
-  window.addEventListener("blur", triggerBlackout);
+  // Window blur (Notification shade pull, task switch, snipping tool)
+  window.addEventListener("blur", () => triggerBlackout(0));
   window.addEventListener("focus", liftBlackout);
 
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") triggerBlackout();
+    if (document.visibilityState === "hidden") triggerBlackout(0);
     else liftBlackout();
   });
 
-  // C. Intercept Desktop Screenshot & Print Keys
+  // Desktop print/screen capture keys
   window.addEventListener("keyup", (e) => {
-    if (e.key === "PrintScreen" || e.keyCode === 44) triggerBlackout();
+    if (e.key === "PrintScreen" || e.keyCode === 44) triggerBlackout(4000);
   });
 
   window.addEventListener("keydown", (e) => {
-    if (e.key === "PrintScreen" || e.keyCode === 44) triggerBlackout();
+    if (e.key === "PrintScreen" || e.keyCode === 44) triggerBlackout(4000);
     if ((e.ctrlKey || e.metaKey) && ["p", "s", "u"].includes(e.key.toLowerCase())) {
       e.preventDefault();
-      triggerBlackout();
+      triggerBlackout(4000);
     }
     if ((e.metaKey || e.ctrlKey) && e.shiftKey && ["s", "3", "4"].includes(e.key.toLowerCase())) {
-      triggerBlackout();
+      triggerBlackout(4000);
     }
   });
 
@@ -279,21 +255,11 @@ const INITIAL_DISCUSSIONS = [
   {
     id: "d1",
     author: "Shreyan",
-    time: "Today at 4:15 PM",
-    topic: "Key Dates for Class 10 History Timeline",
-    content: "Keep in mind that the Rowlatt Act is 1919 and Non-Cooperation was formally adopted in 1920. Avoid conflating the timeline in Section A.",
+    time: "Today",
+    topic: "Approach for Source-Based Interpretations",
+    content: "When analyzing historical proclamations or letters, correlate the author's primary intent with the contemporary social climate before answering.",
     replies: [
-      { author: "Adrita", text: "Important addition: the Chauri Chaura incident occurred in Feb 1922 which triggered its withdrawal." }
-    ]
-  },
-  {
-    id: "d2",
-    author: "Progyan",
-    time: "Yesterday at 6:30 PM",
-    topic: "Map Practice for Sunday Assessment",
-    content: "Are we being evaluated on major iron ore deposits or river dams this coming Sunday?",
-    replies: [
-      { author: "Ayushman", text: "Ma'am noted that major dam locations and soil classifications will headline the 5-mark cartography portion." }
+      { author: "Adrita", text: "Highlighting specific clauses directly in your mind helps avoid broad generalities." }
     ]
   }
 ];
@@ -315,24 +281,25 @@ function renderDiscussions() {
   container.innerHTML = "";
   list.forEach(item => {
     const card = document.createElement("article");
-    card.className = "card discussion-item-card";
+    card.className = "card";
+    card.style.borderLeft = "3px solid var(--gold-foil)";
 
     let replyHtml = item.replies.map(r => `
-      <div class="discussion-reply">
-        <strong>${r.author}:</strong> ${r.text}
+      <div style="font-size: 0.88rem; line-height: 1.5; color: var(--text-main);">
+        <strong style="color: var(--gold-foil);">${r.author}:</strong> ${r.text}
       </div>
     `).join("");
 
     card.innerHTML = `
       <div class="discussion-meta">
         <span class="author-badge">⚜️ ${item.author}</span>
-        <span class="time-badge">${item.time}</span>
+        <span style="font-size: 0.74rem; color: var(--text-dim);">${item.time}</span>
       </div>
-      <h3 class="discussion-title">${item.topic}</h3>
-      <p class="discussion-text">${item.content}</p>
+      <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text-main);">${item.topic}</h3>
+      <p style="font-size: 0.94rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.25rem;">${item.content}</p>
       <div class="replies-wrapper">${replyHtml}</div>
-      <form class="reply-form" data-id="${item.id}">
-        <input type="text" placeholder="Offer your academic reply..." required>
+      <form class="reply-form" data-id="${item.id}" style="display: flex; gap: 0.6rem;">
+        <input type="text" placeholder="Offer your academic reflection..." required style="flex:1; padding: 0.6rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--gold-border); background: var(--bg-surface); color: var(--text-main); font-size: 0.88rem; outline: none;">
         <button type="submit" class="btn btn-outline-sm">Reply</button>
       </form>
     `;
@@ -375,7 +342,7 @@ function initFeedback() {
   });
 }
 
-// 10. PDF.js Archival Viewer (Up to 300% Zoom + Dynamic Stamped Watermark)
+// 10. PDF.js Archival Viewer (Up to 300% Zoom + Dynamic Live-Clock Watermark)
 let pdfDoc = null;
 let currentPage = 1;
 let zoom = 1.0;
@@ -426,7 +393,7 @@ async function loadSelectedPDF(filePath) {
 
   const docCtx = docCanvas.getContext("2d");
   const markCtx = markCanvas.getContext("2d");
-  const session = getSession() || { name: "Student" };
+  const session = getSession() || { name: "Student", id: "0000" };
 
   try {
     const loadingTask = pdfjsLib.getDocument(`${filePath}?t=${Date.now()}`);
@@ -437,10 +404,10 @@ async function loadSelectedPDF(filePath) {
   } catch (err) {
     docCanvas.width = 600;
     docCanvas.height = 300;
-    docCtx.fillStyle = "#1e2638";
+    docCtx.fillStyle = "#131b2a";
     docCtx.fillRect(0, 0, 600, 300);
-    docCtx.fillStyle = "#9ba6b5";
-    docCtx.font = "15px 'Playfair Display', Georgia, serif";
+    docCtx.fillStyle = "#95a2b5";
+    docCtx.font = "16px 'Cormorant Garamond', Georgia, serif";
     docCtx.textAlign = "center";
     docCtx.fillText("Archival examination folio will be available shortly.", 300, 150);
   }
@@ -473,21 +440,26 @@ async function renderPDFPage(pageNum, docCanvas, markCanvas, docCtx, markCtx, se
 
   await page.render({ canvasContext: docCtx, viewport: renderViewport }).promise;
 
-  // Stamped Diagonal Repeating Watermark
+  // Stamped Diagonal Repeating Live-Clock Forensic Watermark
   markCtx.clearRect(0, 0, markCanvas.width, markCanvas.height);
   markCtx.save();
   markCtx.rotate((-25 * Math.PI) / 180);
-  markCtx.font = `700 ${22 * dpr}px 'Cinzel', serif`;
-  markCtx.fillStyle = "rgba(180, 140, 50, 0.17)";
+  markCtx.font = `bold ${17 * dpr}px 'Plus Jakarta Sans', sans-serif`;
+  markCtx.fillStyle = "rgba(212, 175, 55, 0.22)";
   markCtx.textAlign = "center";
 
-  const stamp = `${session.name.toUpperCase()} • PRIVATE FOLIO • UNLICENSED REPRODUCTION PROHIBITED`;
-  const stepX = 400 * dpr;
-  const stepY = 240 * dpr;
+  const now = new Date();
+  const timeStamp = now.toLocaleDateString("en-IN") + " " + now.toLocaleTimeString("en-IN", { hour12: false });
+  const stampLine1 = `${session.name.toUpperCase()} • ACADEMIC EVALUATION FOLIO`;
+  const stampLine2 = `SESSION ID: ${session.id.toUpperCase()} • ${timeStamp}`;
 
-  for (let x = -markCanvas.width; x < markCanvas.width * 2; x += stepX) {
-    for (let y = -markCanvas.height; y < markCanvas.height * 2; y += stepY) {
-      markCtx.fillText(stamp, x, y);
+  const stepX = 360 * dpr;
+  const stepY = 170 * dpr;
+
+  for (let x = -markCanvas.width * 1.5; x < markCanvas.width * 2; x += stepX) {
+    for (let y = -markCanvas.height * 1.5; y < markCanvas.height * 2; y += stepY) {
+      markCtx.fillText(stampLine1, x, y);
+      markCtx.fillText(stampLine2, x, y + (20 * dpr));
     }
   }
   markCtx.restore();
@@ -529,7 +501,7 @@ function initPinchToZoom() {
         const markCanvas = document.getElementById("watermarkCanvas");
         const docCtx = docCanvas.getContext("2d");
         const markCtx = markCanvas.getContext("2d");
-        const session = getSession() || { name: "Student" };
+        const session = getSession() || { name: "Student", id: "0000" };
         renderPDFPage(currentPage, docCanvas, markCanvas, docCtx, markCtx, session);
       }
     }
@@ -540,44 +512,46 @@ function initPinchToZoom() {
   });
 }
 
-// 11. ShreyanCat Companion Talisman
+// 11. ShreyanCat Scholarly Companion & Pomodoro Timer
+let sprintInterval = null;
+let sprintSeconds = 25 * 60;
+
 function initShreyanCatBot() {
   const botHost = document.createElement("div");
   botHost.id = "shreyanCatWidget";
   botHost.innerHTML = `
-    <div id="catBubbleBtn" class="cat-floating-bubble" title="Summon ShreyanCat">
-      <span class="cat-face-icon">⚜️</span>
-      <span class="cat-active-beacon"></span>
+    <div id="catBubbleBtn" class="cat-talisman-btn" title="Summon ShreyanCat">
+      <span class="cat-avatar-icon">🐱</span>
     </div>
 
     <div id="catChatWindow" class="cat-chat-window" style="display: none;">
       <div class="cat-chat-header">
-        <div class="cat-brand-wrap">
-          <span>🐾</span>
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+          <span style="font-size: 1.4rem;">🐾</span>
           <div>
-            <strong>ShreyanCat</strong>
-            <small>Atelier Academic Assistant</small>
+            <strong style="display: block; font-family: var(--font-display); font-size: 0.92rem; color: var(--gold-light);">ShreyanCat</strong>
+            <small style="display: block; font-size: 0.72rem; color: #95a2b5;">Scholarly Companion</small>
           </div>
         </div>
-        <button id="catCloseBtn" class="cat-close-btn">&times;</button>
+        <button id="catCloseBtn" style="background: none; border: none; color: #95a2b5; font-size: 1.5rem; cursor: pointer;">&times;</button>
       </div>
 
       <div class="cat-chat-body" id="catChatBody">
         <div class="cat-msg bot">
-          Welcome to the atelier! 🐾 I am <strong>ShreyanCat</strong>. How may I assist your examination routine or batch timetable today?
+          Purr! 🐾 I am <strong>ShreyanCat</strong>, guardian of this academic atelier. Need a 25-minute study sprint, a cognitive revision spark, or a calming cat purr?
         </div>
       </div>
 
       <div class="cat-chips-bar">
-        <button class="chip-item" data-q="batch">Class Timings</button>
-        <button class="chip-item" data-q="paper">Weekly Folios</button>
-        <button class="chip-item" data-q="joke">Cat Wit</button>
-        <button class="chip-item" data-q="fees">Fees Info</button>
+        <button class="chip-item" data-q="timer">⏱️ 25m Focus Sprint</button>
+        <button class="chip-item" data-q="spark">✨ Study Sparks</button>
+        <button class="chip-item" data-q="peptalk">🐱 Cat Pep Talk</button>
+        <button class="chip-item" data-q="purr">🌸 Calming Purr</button>
       </div>
 
       <form id="catChatForm" class="cat-input-bar">
-        <input type="text" id="catInput" placeholder="Consult ShreyanCat..." autocomplete="off">
-        <button type="submit" class="cat-send-btn">&rarr;</button>
+        <input type="text" id="catInput" placeholder="Talk with ShreyanCat..." autocomplete="off">
+        <button type="submit" class="btn btn-primary" style="padding: 0 1rem; border-radius: var(--radius-sm); font-weight: 700;">&rarr;</button>
       </form>
     </div>
   `;
@@ -603,24 +577,52 @@ function initShreyanCatBot() {
     chatBody.scrollTop = chatBody.scrollHeight;
   }
 
-  function getReply(q) {
+  function handleCommand(q) {
     const s = q.toLowerCase();
-    if (s.includes("batch") || s.includes("time") || s.includes("timing") || s.includes("schedule")) {
-      return "Class batches assemble Tuesday & Friday (5:00 PM) or Wednesday & Saturday (5:30 PM). Sunday assessment sessions start at 9:00 AM sharp! ⚜️";
+
+    if (s.includes("timer") || s.includes("sprint") || s.includes("focus") || s.includes("pomodoro")) {
+      if (sprintInterval) clearInterval(sprintInterval);
+      sprintSeconds = 25 * 60;
+      addMsg("bot", "⏳ <strong>25-Minute Focus Sprint Initiated!</strong><br>Put away external distractions. ShreyanCat will keep watch. Paws on the parchment!");
+      
+      sprintInterval = setInterval(() => {
+        sprintSeconds--;
+        if (sprintSeconds <= 0) {
+          clearInterval(sprintInterval);
+          sprintInterval = null;
+          addMsg("bot", "🔔 <strong>Ding! Sprint Complete!</strong><br>Magnificent focus! Stand up, stretch your paws, and hydrate before the next revision folio.");
+        }
+      }, 1000);
+      return;
     }
-    if (s.includes("paper") || s.includes("test") || s.includes("exam") || s.includes("omr")) {
-      return "Examination folios are accessible under the <strong>Assessment Paper</strong> tab. Review on-screen and bring blank 50-mark OMR sheets on Sunday.";
+
+    if (s.includes("spark") || s.includes("technique") || s.includes("tip") || s.includes("study")) {
+      const sparks = [
+        "✨ <strong>The Feynman Paws:</strong> If you cannot explain the concept simply to a curious kitten without consulting the textbook, your mental model still has gaps. Re-read with intent!",
+        "✨ <strong>Active Retrieval:</strong> Looking at notes gives the illusion of mastery. Close the folio right now and scribble everything you remember from memory on scrap paper.",
+        "✨ <strong>Interleaved Practice:</strong> Do not solve 20 identical questions in a row. Mix two different question types to force your brain to identify the right strategy."
+      ];
+      return sparks[Math.floor(Math.random() * sparks.length)];
     }
-    if (s.includes("joke") || s.includes("funny") || s.includes("laugh")) {
-      return "Why did the cat sit on the parchment? It wanted to leave an indelible impression. 🐾📜";
+
+    if (s.includes("peptalk") || s.includes("stress") || s.includes("hard") || s.includes("motivat")) {
+      const pep = [
+        "You do not need to master the whole syllabus in one sitting. One solid, deliberate concept at a time. ShreyanCat believes in you! 🐾",
+        "Patience, scholar. A cat stalks its prey with motionless quiet before the pounce. Approach tough questions with the same stillness. 🐱",
+        "Mistakes on practice folios are glorious—they reveal where the marks were hiding before the actual examination room!"
+      ];
+      return pep[Math.floor(Math.random() * pep.length)];
     }
-    if (s.includes("fee") || s.includes("due") || s.includes("lock") || s.includes("pay")) {
-      return "If access to question folios is on hold, ask your parents to drop a quick WhatsApp note to Swati Ma'am to update the ledger! 💬";
+
+    if (s.includes("purr") || s.includes("calm") || s.includes("breathe") || s.includes("relax")) {
+      return "Purrrrrr... 🌸 <em>*Gentle harmonic vibration*</em><br><br>Inhale slowly for 4 seconds... hold for 4... exhale for 4. The parchment will wait. You are centered.";
     }
-    if (s.includes("who made") || s.includes("developer") || s.includes("creator") || s.includes("cat")) {
-      return "This study salon was custom crafted by <strong>ShreyanCat</strong>! 🐾⚡";
+
+    if (s.includes("who made") || s.includes("creator") || s.includes("developer")) {
+      return "This study sanctuary and its cryptographic defenses were crafted exclusively by <strong>ShreyanCat</strong>! 🐾⚡";
     }
-    return "Noted. Check the class notice plinth on your overview desk or consult Swati Ma'am during batch hours. ⚜️";
+
+    return "Meow! 🐾 Whatever the subject, deliberate quiet focus will triumph over anxious rushing. Ask for a <strong>focus sprint</strong> or a <strong>study spark</strong>!";
   }
 
   form.addEventListener("submit", (e) => {
@@ -629,14 +631,16 @@ function initShreyanCatBot() {
     if (!val) return;
     addMsg("user", val);
     input.value = "";
-    setTimeout(() => addMsg("bot", getReply(val)), 300);
+    const reply = handleCommand(val);
+    if (reply) setTimeout(() => addMsg("bot", reply), 250);
   });
 
   document.querySelectorAll(".chip-item").forEach(c => {
     c.addEventListener("click", () => {
       const q = c.getAttribute("data-q");
       addMsg("user", c.textContent);
-      setTimeout(() => addMsg("bot", getReply(q)), 250);
+      const reply = handleCommand(q);
+      if (reply) setTimeout(() => addMsg("bot", reply), 250);
     });
   });
 }
@@ -667,7 +671,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const markCanvas = document.getElementById("watermarkCanvas");
         const docCtx = docCanvas.getContext("2d");
         const markCtx = markCanvas.getContext("2d");
-        const session = getSession() || { name: "Student" };
+        const session = getSession() || { name: "Student", id: "0000" };
         renderPDFPage(currentPage, docCanvas, markCanvas, docCtx, markCtx, session);
       }
     });
@@ -682,7 +686,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const markCanvas = document.getElementById("watermarkCanvas");
         const docCtx = docCanvas.getContext("2d");
         const markCtx = markCanvas.getContext("2d");
-        const session = getSession() || { name: "Student" };
+        const session = getSession() || { name: "Student", id: "0000" };
         renderPDFPage(currentPage, docCanvas, markCanvas, docCtx, markCtx, session);
       }
     });
@@ -699,7 +703,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const markCanvas = document.getElementById("watermarkCanvas");
         const docCtx = docCanvas.getContext("2d");
         const markCtx = markCanvas.getContext("2d");
-        const session = getSession() || { name: "Student" };
+        const session = getSession() || { name: "Student", id: "0000" };
         renderPDFPage(currentPage, docCanvas, markCanvas, docCtx, markCtx, session);
       }
     });
@@ -714,7 +718,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const markCanvas = document.getElementById("watermarkCanvas");
         const docCtx = docCanvas.getContext("2d");
         const markCtx = markCanvas.getContext("2d");
-        const session = getSession() || { name: "Student" };
+        const session = getSession() || { name: "Student", id: "0000" };
         renderPDFPage(currentPage, docCanvas, markCanvas, docCtx, markCtx, session);
       }
     });
